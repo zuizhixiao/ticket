@@ -81,6 +81,27 @@
                     </div>
                 </section>
 
+                <!-- 新增字体大小自定义控制面板 -->
+                <section class="font-size-section">
+                    <h3>🔤 字体大小设置</h3>
+                    <div class="font-size-controls">
+                        <div class="font-size-item">
+                            <label for="titleFontSize">电影标题字体</label>
+                            <div class="font-size-slider-container">
+                                <input type="range" id="titleFontSize" min="20" max="52" value="48" class="font-size-slider">
+                                <span class="font-size-value" id="titleFontSizeValue">48px</span>
+                            </div>
+                        </div>
+                        <div class="font-size-item">
+                            <label for="textFontSize">正文字体</label>
+                            <div class="font-size-slider-container">
+                                <input type="range" id="textFontSize" min="12" max="38" value="26" class="font-size-slider">
+                                <span class="font-size-value" id="textFontSizeValue">26px</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
                 <section class="action-section">
                     <button class="btn btn-primary" id="downloadBtn">💾 下载票根</button>
                     <button class="btn btn-secondary" id="resetBtn">🔄 重置</button>

@@ -11,5 +11,5 @@ func InitRouter(Router *gin.RouterGroup) {
 	Router.POST("/upload/image", api.SavePic)
 
 	Router.GET("/getSystemTemplate", api.GetTemplate)
-	Router.GET("/getUserTemplate", api.GetUserTemplate)
+	Router.GET("/getTypeSettingTemplate", api.GetTypeSettingTemplate)
 }

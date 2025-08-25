@@ -98,7 +98,7 @@ func GetTemplate(c *gin.Context) {
 	}, c)
 }
 
-func GetUserTemplate(c *gin.Context) {
+func GetTypeSettingTemplate(c *gin.Context) {
 	userId := 1
 	list, err := model.GetTemplateList(config.GVA_DB, userId, 1, 10)
 	if err != nil {

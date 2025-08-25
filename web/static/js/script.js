@@ -13,6 +13,12 @@ class TicketEditor {
         this.posterServerFilename = null; // 存储海报在服务器上的文件名
         this.templateImages = {};
         
+        // 新增：字体大小自定义存储
+        this.customFontSizes = {
+            titleFontSize: 48,
+            textFontSize: 26
+        };
+        
         this.init();
     }
     
@@ -78,11 +84,7 @@ class TicketEditor {
                     // 存储模板的颜色信息
                     this.templateData[templateName] = {
                         titleColor: template.titleColor,
-                        textColor: template.textColor,
-                        titleFontSize: template.titleFontSize,
-                        textFontSize: template.textFontSize,
-                        nameFontSize: template.nameFontSize,
-                        tailFontSize: template.tailFontSize
+                        textColor: template.textColor
                     };
                     
                     console.log(`成功加载模板: ${templateName}`);
@@ -241,6 +243,9 @@ class TicketEditor {
         document.getElementById('startTime').addEventListener('input', () => this.renderTicket());
         document.getElementById('exclusiveName').addEventListener('input', () => this.renderTicket());
         
+        // 新增：字体大小控制事件
+        this.bindFontSizeEvents();
+        
         // 根据环境调整按钮文字
         this.adjustButtonText();
 
@@ -248,6 +253,35 @@ class TicketEditor {
         document.getElementById('downloadBtn').addEventListener('click', () => this.downloadTicket());
         document.getElementById('resetBtn').addEventListener('click', () => this.resetEditor());
     }
+    
+    // 新增：字体大小事件绑定方法
+    bindFontSizeEvents() {
+        // 字体大小滑块事件
+        const fontSizeSliders = ['titleFontSize', 'textFontSize'];
+        
+        fontSizeSliders.forEach(fontType => {
+            const slider = document.getElementById(fontType);
+            const valueDisplay = document.getElementById(fontType + 'Value');
+            
+            if (slider && valueDisplay) {
+                // 设置初始值
+                slider.value = this.customFontSizes[fontType];
+                valueDisplay.textContent = this.customFontSizes[fontType] + 'px';
+                
+                // 添加滑块变化事件
+                slider.addEventListener('input', (e) => {
+                    const newValue = parseInt(e.target.value);
+                    this.customFontSizes[fontType] = newValue;
+                    valueDisplay.textContent = newValue + 'px';
+                    this.renderTicket(); // 实时更新预览
+                });
+            }
+        });
+        
+
+    }
+    
+
     
     // 根据环境调整按钮文字
     adjustButtonText() {
@@ -289,6 +323,9 @@ class TicketEditor {
         if (selectedItem) {
             selectedItem.classList.add('active');
             this.currentTemplate = templateName;
+            
+            // 切换模板时，可以选择是否应用模板的默认字体大小
+            // 这里保持用户的自定义字体大小，不自动应用模板默认值
             this.renderTicket();
         }
     }
@@ -502,19 +539,17 @@ class TicketEditor {
         // 获取模板的默认颜色
         let textColor = '#f9d9c2'; // 默认文本颜色
         let titleColor = '#ffffff'; // 默认电影标题颜色为白色
-        let titleFontSize = 48;
-        let textFontSize = 26;
-        let nameFontSize = 35;
-        let tailFontSize = 24;
+        
+        // 使用自定义字体大小
+        let titleFontSize = this.customFontSizes.titleFontSize;
+        let textFontSize = this.customFontSizes.textFontSize;
+        const nameFontSize = 35; // 特殊ID字体大小（固定）
+        const tailFontSize = 24; // 底部文字字体大小（固定）
         
         // 使用当前模板的颜色配置
         if (this.templateData && this.templateData[this.currentTemplate]) {
             textColor = this.templateData[this.currentTemplate].textColor;
             titleColor = this.templateData[this.currentTemplate].titleColor;
-            titleFontSize = this.templateData[this.currentTemplate].titleFontSize;
-            textFontSize = this.templateData[this.currentTemplate].textFontSize;
-            nameFontSize = this.templateData[this.currentTemplate].nameFontSize;
-            tailFontSize = this.templateData[this.currentTemplate].tailFontSize;
         }
         
         // 调整文字位置，改为左对齐
@@ -1369,6 +1404,8 @@ class TicketEditor {
         
         // 设置默认时间
         this.setupDefaultValues();
+        
+
         
         // 重置为第一个可用的模板
         const templateNames = Object.keys(this.templateImages);

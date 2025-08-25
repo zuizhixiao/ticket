@@ -539,3 +539,171 @@ header p {
 .control-panel section:nth-child(2) { animation-delay: 0.2s; }
 .control-panel section:nth-child(3) { animation-delay: 0.3s; }
 .control-panel section:nth-child(4) { animation-delay: 0.4s; }
+
+/* 字体大小控制面板样式 */
+.font-size-section {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid #dee2e6;
+    margin-bottom: 30px;
+}
+
+.font-size-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.font-size-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.font-size-item label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.font-size-slider-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: white;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.font-size-slider {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #e9ecef;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.font-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+    transition: all 0.3s ease;
+}
+
+.font-size-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+}
+
+.font-size-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+    transition: all 0.3s ease;
+}
+
+.font-size-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+}
+
+.font-size-value {
+    min-width: 50px;
+    text-align: center;
+    font-weight: 600;
+    color: #007bff;
+    font-size: 14px;
+    background: rgba(0,123,255,0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,123,255,0.2);
+}
+
+.font-size-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.btn-small {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6c757d, #495057);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(108,117,125,0.3);
+    flex: 1;
+    max-width: 150px;
+}
+
+.btn-small:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108,117,125,0.4);
+}
+
+.btn-small:active {
+    transform: translateY(0);
+}
+
+/* 响应式设计 - 字体大小控制面板 */
+@media (max-width: 768px) {
+    .font-size-section {
+        padding: 15px;
+    }
+    
+    .font-size-slider-container {
+        padding: 10px 12px;
+    }
+    
+    .font-size-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-small {
+        max-width: 200px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .font-size-section {
+        padding: 12px;
+    }
+    
+    .font-size-controls {
+        gap: 15px;
+    }
+    
+    .font-size-slider-container {
+        padding: 8px 10px;
+    }
+    
+    .font-size-value {
+        min-width: 45px;
+        font-size: 12px;
+        padding: 3px 6px;
+    }
+}
