@@ -3,7 +3,7 @@ class TicketEditor {
     constructor() {
         this.canvas = document.getElementById('ticketCanvas');
         this.ctx = this.canvas.getContext('2d');
-        this.apiHost = 'http://localhost:8080';
+        this.apiHost = '';
         
         // 设置Canvas的安全属性，解决微信环境下的跨域问题
         this.setupCanvasSecurity();
