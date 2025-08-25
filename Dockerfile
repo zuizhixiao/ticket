@@ -10,6 +10,13 @@ WORKDIR /var/www
 
 ADD . .
 
+RUN go mod tidy
+
+# 安装statik工具
+RUN go install github.com/rakyll/statik 
+
+RUN statik -src="./web" -f
+
 RUN go build
 
 FROM registry.cn-hangzhou.aliyuncs.com/open_images/alpine
