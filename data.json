@@ -1,0 +1,99 @@
+[{
+    "id": "1",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/橙色.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 30,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "2",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/红色.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "3",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/浅灰.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "4",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/浅蓝.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "5",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/深灰.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "6",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/深蓝.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "7",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/深绿.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "8",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/银色.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},{
+    "id": "9",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/中蓝.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+},
+{
+    "id": "10",
+    "url": "https://7072-prod-2gh1lo3b716dcb4e-1373715672.tcb.qcloud.la/images/template/紫色.png",
+    "titleColor": "#ffffff",
+    "textColor": "#DDC1C1",
+    "titleFontSize": 48,
+    "textFontSize": 26,
+    "nameFontSize": 35,
+    "tailFontSize": 24
+}]
