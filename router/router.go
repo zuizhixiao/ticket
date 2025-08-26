@@ -12,4 +12,7 @@ func InitRouter(Router *gin.RouterGroup) {
 
 	Router.GET("/getSystemTemplate", api.GetTemplate)
 	Router.GET("/getTypeSettingTemplate", api.GetTypeSettingTemplate)
+
+	// 微信公众号消息接收接口
+	Router.Any("/wechat/message", api.WechatMessageHandler)
 }

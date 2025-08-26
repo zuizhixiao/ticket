@@ -17,8 +17,9 @@ var (
 )
 
 type Params struct {
-	Cos   Cos
-	Mysql Mysql
+	Cos    Cos
+	Mysql  Mysql
+	Wechat Wechat
 }
 
 type Cos struct {
@@ -34,6 +35,12 @@ type Mysql struct {
 	Password string
 	Dbname   string
 	Config   string
+}
+
+type Wechat struct {
+	AppID     string
+	AppSecret string
+	Token     string
 }
 
 func Init() {
@@ -71,6 +78,11 @@ func Init() {
 				Password: os.Getenv("MYSQL_PASSWORD"),
 				Dbname:   os.Getenv("MYSQL_DBNAME"),
 				Config:   os.Getenv("MYSQL_CONFIG"),
+			},
+			Wechat: Wechat{
+				AppID:     os.Getenv("WECHAT_APP_ID"),
+				AppSecret: os.Getenv("WECHAT_APP_SECRET"),
+				Token:     os.Getenv("WECHAT_TOKEN"),
 			},
 		}
 
