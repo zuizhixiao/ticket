@@ -12,12 +12,9 @@ func main() {
 	//初始化mysql
 	initialize.Mysql()
 
-	conf := config.GVA_CONFIG
+	conf := config.GVA_CONFIG.Cos
 
-	config.CosClient = cos.SetUp(
-		conf.CosAccessKeyId,
-		conf.CosAccessKeySecret,
-		conf.CosEndpoint,
-		conf.CosBucket)
+	config.CosClient = cos.SetUp(conf.AccessKeyId, conf.AccessKeySecret, conf.Endpoint, conf.Bucket)
+
 	initialize.RunServer()
 }

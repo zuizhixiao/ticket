@@ -17,12 +17,15 @@ var (
 )
 
 type Params struct {
-	CosAccessKeyId     string
-	CosAccessKeySecret string
-	CosEndpoint        string
-	CosBucket          string
-	SystemPort         string
-	Mysql              Mysql
+	Cos   Cos
+	Mysql Mysql
+}
+
+type Cos struct {
+	AccessKeyId     string
+	AccessKeySecret string
+	Endpoint        string
+	Bucket          string
 }
 
 type Mysql struct {
@@ -56,10 +59,12 @@ func Init() {
 		}
 	} else {
 		GVA_CONFIG = Params{
-			CosAccessKeyId:     os.Getenv("COS_ACCESS_KEY_ID"),
-			CosAccessKeySecret: os.Getenv("COS_ACCESS_KEY_SECRET"),
-			CosEndpoint:        os.Getenv("COS_ENDPOINT"),
-			CosBucket:          os.Getenv("COS_BUCKET"),
+			Cos: Cos{
+				AccessKeyId:     os.Getenv("COS_ACCESS_KEY_ID"),
+				AccessKeySecret: os.Getenv("COS_ACCESS_KEY_SECRET"),
+				Endpoint:        os.Getenv("COS_ENDPOINT"),
+				Bucket:          os.Getenv("COS_BUCKET"),
+			},
 			Mysql: Mysql{
 				Path:     os.Getenv("MYSQL_PATH"),
 				Username: os.Getenv("MYSQL_USERNAME"),

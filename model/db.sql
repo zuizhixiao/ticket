@@ -13,3 +13,13 @@ CREATE TABLE `template` (
   PRIMARY KEY (`id`),
   KEY `idx_user` (`userId`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8 COMMENT='模板库';
+
+CREATE TABLE `image` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(20) DEFAULT NULL COMMENT 'product 成品 poster 海报',
+  `filename` varchar(100) DEFAULT NULL COMMENT '文件名',
+  `url` varchar(255) DEFAULT NULL COMMENT '文件地址',
+  `ip` varchar(20) DEFAULT NULL COMMENT '访问ip',
+  `createTime` int(11) DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

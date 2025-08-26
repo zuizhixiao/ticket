@@ -15,17 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TemplateData struct {
-	Id            string `json:"id"`
-	Url           string `json:"url"`
-	TitleColor    string `json:"titleColor"`
-	TextColor     string `json:"textColor"`
-	TitleFontSize int    `json:"titleFontSize"`
-	TextFontSize  int    `json:"textFontSize"`
-	NameFontSize  int    `json:"nameFontSize"`
-	TailFontSize  int    `json:"tailFontSize"`
-}
-
 // SavePic 处理图片上传
 func SavePic(c *gin.Context) {
 	// 设置最大文件大小为10MB
@@ -67,13 +56,23 @@ func SavePic(c *gin.Context) {
 		return
 	}
 
-	// 生成唯一文件名
-	timestamp := time.Now().UnixNano()
 	dateFormat := time.Unix(time.Now().Unix(), 0).Format("20060102")
-	filename := fmt.Sprintf("images/ticket/%s/%s/%d%s", imageType, dateFormat, timestamp, ext)
+	filename := fmt.Sprintf("images/ticket/%s/%s/%d%s", imageType, dateFormat, time.Now().Unix(), ext)
 	bufferBytes, _ := io.ReadAll(file)
 
-	config.CosClient.PutFileWithBody(filename, bufferBytes)
+	imageUrl, err := config.CosClient.PutFileWithBody(filename, bufferBytes)
+	if err != nil {
+		response.Result(500, nil, err.Error(), c)
+		return
+	}
+
+	image := model.Image{
+		Type:     imageType,
+		Filename: header.Filename,
+		Url:      imageUrl,
+		Ip:       c.ClientIP(),
+	}
+	image.Create(config.GVA_DB)
 
 	// 返回成功响应
 	response.Success(gin.H{

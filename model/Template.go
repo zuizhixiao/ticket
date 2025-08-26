@@ -4,17 +4,13 @@ import "gorm.io/gorm"
 
 // 模板库
 type Template struct {
-	Id            int    `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
-	UserId        int    `gorm:"column:userId;type:int(11);default:0;NOT NULL" json:"userId"`    // 用户id 为0代表系统
-	Url           string `gorm:"column:url;type:varchar(250);NOT NULL" json:"url"`               // 模板图片
-	TitleColor    string `gorm:"column:titleColor;type:varchar(20);NOT NULL" json:"titleColor"`  // 电影标题颜色
-	TextColor     string `gorm:"column:textColor;type:varchar(20);NOT NULL" json:"textColor"`    // 电影详情颜色
-	TitleFontSize int    `gorm:"column:titleFontSize;type:int(4);NOT NULL" json:"titleFontSize"` // 电影标题字体大小
-	TextFontSize  int    `gorm:"column:textFontSize;type:int(4);NOT NULL" json:"textFontSize"`   // 电影详情字体大小
-	NameFontSize  int    `gorm:"column:nameFontSize;type:int(4);NOT NULL" json:"nameFontSize"`   // 专属名称字体大小
-	TailFontSize  int    `gorm:"column:tailFontSize;type:int(4);NOT NULL" json:"tailFontSize"`   // 末尾文字字体大小
-	Status        int    `gorm:"column:status;type:tinyint(1);default:1;NOT NULL" json:"status"` // 1正常 2删除
-	CreateTime    int    `gorm:"column:createTime;type:int(11);NOT NULL" json:"createTime"`      // 创建时间
+	Id         int    `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
+	UserId     int    `gorm:"column:userId;type:int(11);default:0;NOT NULL" json:"userId"`    // 用户id 为0代表系统
+	Url        string `gorm:"column:url;type:varchar(250);NOT NULL" json:"url"`               // 模板图片
+	TitleColor string `gorm:"column:titleColor;type:varchar(20);NOT NULL" json:"titleColor"`  // 电影标题颜色
+	TextColor  string `gorm:"column:textColor;type:varchar(20);NOT NULL" json:"textColor"`    // 电影详情颜色
+	Status     int    `gorm:"column:status;type:tinyint(1);default:1;NOT NULL" json:"status"` // 1正常 2删除
+	CreateTime int    `gorm:"column:createTime;type:int(11);NOT NULL" json:"createTime"`      // 创建时间
 }
 
 func (m *Template) TableName() string {
