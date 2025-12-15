@@ -12,6 +12,7 @@ class TicketEditor {
         this.posterImage = null;
         this.posterServerFilename = null; // 存储海报在服务器上的文件名
         this.templateImages = {};
+        this.templateUrls = {}; // 存储模板的远程URL
         
         // 新增：字体大小自定义存储
         this.customFontSizes = {
@@ -80,6 +81,7 @@ class TicketEditor {
                     // 从URL中提取模板名称
                     const templateName = this.extractTemplateName(template.url);
                     this.templateImages[templateName] = img;
+                    this.templateUrls[templateName] = template.url; // 存储远程URL
                     
                     // 存储模板的颜色信息
                     this.templateData[templateName] = {
@@ -136,7 +138,10 @@ class TicketEditor {
             img.crossOrigin = 'anonymous';
             img.onload = () => {
                 const templateName = filename.replace(/\.[^/.]+$/, '');
+                // 使用远程URL，如果filename已经是完整URL则直接使用，否则拼接
+                const remoteUrl = filename.startsWith('http') ? filename : `${this.apiHost}/images/template/${filename}`;
                 this.templateImages[templateName] = img;
+                this.templateUrls[templateName] = remoteUrl;
                 
                 // 设置默认颜色
                 this.templateData[templateName] = {
@@ -162,7 +167,9 @@ class TicketEditor {
                     // generateTemplateUI 已经处理了模板选择和渲染，这里不需要重复设置
                 }
             };
-            img.src = `images/template/${filename}`;
+            // 直接使用远程URL，如果filename已经是完整URL则直接使用，否则拼接
+            const remoteUrl = filename.startsWith('http') ? filename : `${this.apiHost}/images/template/${filename}`;
+            img.src = remoteUrl;
         });
     }
 
@@ -182,9 +189,11 @@ class TicketEditor {
                 this.currentTemplate = templateName; // 立即设置当前模板
             }
             
+            // 优先使用存储的URL，如果没有则使用Image对象的src
+            const imageUrl = this.templateUrls[templateName] || this.templateImages[templateName]?.src || '';
             templateItem.innerHTML = `
                 <div class="template-preview">
-                    <img src="${this.templateImages[templateName].src}" alt="${templateName}模板" class="template-image">
+                    <img src="${imageUrl}" alt="${templateName}模板" class="template-image">
                 </div>
             `;
             
