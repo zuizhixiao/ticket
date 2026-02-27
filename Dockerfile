@@ -32,4 +32,3 @@ EXPOSE 8080
 RUN chmod +x /app/project/ticket
 
 CMD ["./ticket"]
-
