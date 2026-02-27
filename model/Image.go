@@ -8,6 +8,7 @@ import (
 
 type Image struct {
 	Id         int    `gorm:"column:id;type:int(11);primary_key;AUTO_INCREMENT" json:"id"`
+	UserId     int    `gorm:"column:userId;type:int(11)" json:"userId"`          // 用户id
 	Type       string `gorm:"column:type;type:varchar(20)" json:"type"`          // product 成品 poster 海报
 	Filename   string `gorm:"column:filename;type:varchar(100)" json:"filename"` // 文件名
 	Url        string `gorm:"column:url;type:varchar(255)" json:"url"`           // 文件地址
@@ -54,5 +55,23 @@ func GetImageCount(Db *gorm.DB) (int64, error) {
 	var count int64
 	sql := Db.Model(Image{})
 	err := sql.Count(&count).Error
+	return count, err
+}
+
+// GetImageListByUserAndType 根据用户ID和类型获取图片列表
+func GetImageListByUserAndType(Db *gorm.DB, userId int, imgType string, page, num int) ([]Image, error) {
+	var list []Image
+	sql := Db.Model(Image{}).Where("userId = ? AND type = ?", userId, imgType)
+	if page > 0 && num > 0 {
+		sql = sql.Limit(num).Offset((page - 1) * num)
+	}
+	err := sql.Order("id desc").Find(&list).Error
+	return list, err
+}
+
+// GetImageCountByUserAndType 根据用户ID和类型获取图片数量
+func GetImageCountByUserAndType(Db *gorm.DB, userId int, imgType string) (int64, error) {
+	var count int64
+	err := Db.Model(Image{}).Where("userId = ? AND type = ?", userId, imgType).Count(&count).Error
 	return count, err
 }

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成品列表 - 电影纪念票生成平台</title>
+    <link rel="stylesheet" href="/static/css/auth.css">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/products.css">
+</head>
+<body class="products-body">
+    <div class="products-page">
+        <div class="products-card">
+            <!-- 登录栏（与 index 一致，右侧展示） -->
+            <div class="login-bar">
+                <a href="/" class="back-link">← 返回</a>
+                <div class="login-bar-right">
+                <a href="/login" class="login-text-link" id="loginLink">登录</a>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <div class="user-avatar-wrap" id="userAvatarWrap"></div>
+                    <span class="user-name" id="userName"></span>
+                    <div class="user-dropdown">
+                        <a href="/products" class="dropdown-item">成品列表</a>
+                        <a href="#" class="dropdown-item logout-btn">退出</a>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+        <div class="products-content">
+            <h1 class="auth-title">成品列表</h1>
+            <div id="productsLoading" class="products-loading">加载中...</div>
+            <div id="productsEmpty" class="products-empty" style="display: none;">暂无成品，请先制作票根</div>
+            <div id="productsGrid" class="products-grid" style="display: none;"></div>
+        </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+    <script>
+        const UserAuth = {
+            render() {
+                const token = getToken();
+                const loginLink = document.getElementById('loginLink');
+                const userInfoEl = document.getElementById('userInfo');
+                if (!loginLink || !userInfoEl) return;
+
+                if (token) {
+                    loginLink.style.display = 'none';
+                    userInfoEl.style.display = 'inline-flex';
+                    AuthAPI.getUserInfo().then(data => {
+                        document.getElementById('userName').textContent = data.nickname || '用户';
+                        const avatarWrap = document.getElementById('userAvatarWrap');
+                        if (data.avatar) {
+                            avatarWrap.innerHTML = '<img class="user-avatar" src="' + data.avatar + '" alt="头像">';
+                        } else {
+                            const initial = (data.nickname || '用').charAt(0);
+                            avatarWrap.innerHTML = '<div class="user-avatar-placeholder">' + initial + '</div>';
+                        }
+                    }).catch(() => {});
+                } else {
+                    loginLink.style.display = 'inline';
+                    userInfoEl.style.display = 'none';
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            UserAuth.render();
+
+            document.querySelector('.logout-btn')?.addEventListener('click', (e) => {
+                e.preventDefault();
+                clearAuth();
+                UserAuth.render();
+                loadProducts();
+            });
+
+            loadProducts();
+        });
+
+        async function loadProducts() {
+            const token = getToken();
+            const loading = document.getElementById('productsLoading');
+            const empty = document.getElementById('productsEmpty');
+            const grid = document.getElementById('productsGrid');
+
+            loading.style.display = 'block';
+            empty.style.display = 'none';
+            grid.style.display = 'none';
+
+            if (!token) {
+                loading.style.display = 'none';
+                empty.textContent = '请先登录查看成品';
+                empty.style.display = 'block';
+                return;
+            }
+
+            try {
+                const data = await AuthAPI.getUserProducts(1, 50);
+                loading.style.display = 'none';
+
+                if (!data.list || data.list.length === 0) {
+                    empty.textContent = '暂无成品，请先制作票根';
+                    empty.style.display = 'block';
+                    return;
+                }
+
+                const esc = s => (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+                grid.innerHTML = data.list.map(item => {
+                    const name = esc(item.filename) || '未命名';
+                    return `<div class="product-item">
+                        <div class="product-img-wrap">
+                            <img src="${item.url || ''}" alt="${name}" class="product-img">
+                        </div>
+                        <div class="product-name">${name}</div>
+                    </div>`;
+                }).join('');
+                grid.style.display = 'grid';
+            } catch (err) {
+                loading.style.display = 'none';
+                empty.textContent = err.message || '加载失败，请重试';
+                empty.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

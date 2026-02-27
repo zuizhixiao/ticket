@@ -44,6 +44,21 @@ func Routers() *gin.Engine {
 		file, _ := statikFS.Open("/index.html")
 		io.Copy(c.Writer, file)
 	})
+	Router.GET("/login", func(c *gin.Context) {
+		http.ServeFile(c.Writer, c.Request, "./web/login.html")
+	})
+	Router.GET("/register", func(c *gin.Context) {
+		http.ServeFile(c.Writer, c.Request, "./web/register.html")
+	})
+	Router.GET("/forgot", func(c *gin.Context) {
+		http.ServeFile(c.Writer, c.Request, "./web/forgot.html")
+	})
+	Router.GET("/profile", func(c *gin.Context) {
+		http.ServeFile(c.Writer, c.Request, "./web/profile.html")
+	})
+	Router.GET("/products", func(c *gin.Context) {
+		http.ServeFile(c.Writer, c.Request, "./web/products.html")
+	})
 
 	Router.Static("/static", "./web/static")
 
@@ -67,7 +82,7 @@ func cors() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		method := c.Request.Method
 		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Headers", "content-type, token, x-ca-stage")
+		c.Header("Access-Control-Allow-Headers", "content-type, token, Authorization, x-ca-stage")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
 		c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Content-Type")
 		c.Header("Access-Control-Allow-Credentials", "true")

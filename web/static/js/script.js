@@ -359,8 +359,12 @@ class TicketEditor {
             formData.append('type', 'poster'); // 指定为海报类型
             
             // 发送上传请求
+            const headers = {};
+            const token = typeof getToken === 'function' ? getToken() : '';
+            if (token) headers['token'] = token;
             const response = await fetch(this.apiHost + '/api/upload/image', {
                 method: 'POST',
+                headers,
                 body: formData
             });
             
@@ -1246,8 +1250,12 @@ class TicketEditor {
 
                 try {
                     // 发送上传请求
+                    const headers = {};
+                    const token = typeof getToken === 'function' ? getToken() : '';
+                    if (token) headers['token'] = token;
                     const response = await fetch(this.apiHost + '/api/upload/image', {
                         method: 'POST',
+                        headers,
                         body: formData
                     });
 
@@ -1427,7 +1435,77 @@ class TicketEditor {
     }
 }
 
+// 用户登录状态管理
+const UserAuth = {
+    STORAGE_KEY: 'ticket_user_info',
+    getInfo() {
+        try {
+            const raw = localStorage.getItem(this.STORAGE_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch {
+            return null;
+        }
+    },
+    setInfo(info) {
+        if (info) {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(info));
+        } else {
+            if (typeof clearAuth === 'function') clearAuth();
+        }
+        this.render();
+    },
+    render() {
+        const info = this.getInfo();
+        const loginLink = document.getElementById('loginLink');
+        const userInfoEl = document.getElementById('userInfo');
+        const avatarWrap = document.getElementById('userAvatarWrap');
+        const nameEl = document.getElementById('userName');
+
+        if (!loginLink || !userInfoEl) return;
+
+        if (info) {
+            loginLink.style.display = 'none';
+            userInfoEl.style.display = 'inline-flex';
+            nameEl.textContent = info.nickname || info.name || '用户';
+
+            if (info.avatar) {
+                avatarWrap.innerHTML = `<img class="user-avatar" src="${info.avatar}" alt="头像">`;
+            } else {
+                const initial = (info.nickname || info.name || '用').charAt(0);
+                avatarWrap.innerHTML = `<div class="user-avatar-placeholder">${initial}</div>`;
+            }
+        } else {
+            loginLink.style.display = 'inline';
+            userInfoEl.style.display = 'none';
+        }
+    },
+    logout() {
+        this.setInfo(null);
+    },
+    async refreshFromApi() {
+        if (!(typeof getToken === 'function' ? getToken() : '')) return;
+        try {
+            const data = await AuthAPI.getUserInfo();
+            this.setInfo({ nickname: data.nickname, avatar: data.avatar, id: data.id });
+        } catch {
+            this.setInfo(null);
+        }
+    }
+};
+
 // 页面加载完成后初始化编辑器
 document.addEventListener('DOMContentLoaded', async () => {
+    const hasToken = typeof getToken === 'function' ? getToken() : '';
+    if (hasToken) {
+        await UserAuth.refreshFromApi();
+    } else {
+        UserAuth.render();
+    }
+
+    document.querySelector('.logout-btn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        UserAuth.logout();
+    });
+
     new TicketEditor();
 });

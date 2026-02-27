@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"ticket/config"
+	"ticket/model"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -24,6 +25,8 @@ func Mysql() {
 		os.Exit(0)
 	} else {
 		config.GVA_DB = db
+		// 自动迁移用户表
+		db.AutoMigrate(&model.User{})
 		sqlDb, _ := db.DB()
 		sqlDb.SetMaxIdleConns(10)
 		sqlDb.SetMaxOpenConns(100)

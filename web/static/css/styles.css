@@ -13,6 +13,140 @@ body {
     line-height: 1.6;
 }
 
+/* 登录栏 */
+.login-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 12px 30px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* 控制面板滚动区域 */
+.control-panel-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.login-text-link {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.login-text-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.user-info {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.user-info:hover {
+    background: transparent;
+}
+
+.user-info:hover .user-dropdown {
+    opacity: 1;
+    visibility: visible;
+}
+
+.user-avatar-wrap {
+    flex-shrink: 0;
+}
+
+.user-avatar-wrap .user-avatar,
+.user-avatar-wrap .user-avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+}
+
+.user-avatar-wrap .user-avatar {
+    object-fit: cover;
+}
+
+.user-avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.user-name {
+    font-size: 0.9rem;
+    color: #495057;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    min-width: 140px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 8px 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    z-index: 1000;
+}
+
+.user-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    transform: rotate(45deg);
+    box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.dropdown-item {
+    display: block;
+    padding: 10px 16px;
+    color: #495057;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+    background: #f8f9fa;
+}
+
+.dropdown-item.logout-btn {
+    color: #dc3545;
+}
+
+.dropdown-item.logout-btn:hover {
+    background: #fff5f5;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -40,8 +174,9 @@ header p {
 /* 主容器布局 */
 .editor-container {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 左侧预览区域占1份，右侧控制面板占1份，各占50% */
-    gap: 30px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0 30px;
     background: white;
     border-radius: 20px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.1);
@@ -52,9 +187,10 @@ header p {
 .control-panel {
     padding: 30px;
     background: #f8f9fa;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     max-height: 96vh;
-    min-width: 350px; /* 确保控制面板有足够的最小宽度 */
+    min-width: 350px;
 }
 
 .control-panel section {

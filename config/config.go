@@ -20,6 +20,12 @@ type Params struct {
 	Cos    Cos
 	Mysql  Mysql
 	Wechat Wechat
+	Jwt    Jwt
+}
+
+type Jwt struct {
+	Secret    string `mapstructure:"secret" json:"secret" yaml:"secret"`
+	ExpireSec int    `mapstructure:"expire_time" json:"expire_time" yaml:"expire_time"`
 }
 
 type Cos struct {
@@ -38,8 +44,8 @@ type Mysql struct {
 }
 
 type Wechat struct {
-	AppID     string
-	AppSecret string
+	AppID     string `mapstructure:"app_id" json:"app_id" yaml:"app_id"`
+	AppSecret string `mapstructure:"app_secret" json:"app_secret" yaml:"app_secret"`
 	Token     string
 }
 
@@ -84,7 +90,17 @@ func Init() {
 				AppSecret: os.Getenv("WECHAT_APP_SECRET"),
 				Token:     os.Getenv("WECHAT_TOKEN"),
 			},
+			Jwt: Jwt{
+				Secret:    getEnvDefault("JWT_SECRET", "ticket"),
+				ExpireSec: 86400,
+			},
 		}
-
 	}
+}
+
+func getEnvDefault(key, def string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return def
 }

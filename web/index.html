@@ -9,6 +9,18 @@
 <body>
     <div class="container">
         <main class="editor-container">
+            <!-- 登录栏 -->
+            <div class="login-bar">
+                <a href="/login" class="login-text-link" id="loginLink">登录</a>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <div class="user-avatar-wrap" id="userAvatarWrap"></div>
+                    <span class="user-name" id="userName"></span>
+                    <div class="user-dropdown">
+                        <a href="/products" class="dropdown-item">成品列表</a>
+                        <a href="#" class="dropdown-item logout-btn">退出</a>
+                    </div>
+                </div>
+            </div>
             <!-- 左侧预览区域 -->
             <div class="preview-panel">
                 <h3>👀 票根预览</h3>
@@ -20,6 +32,7 @@
 
             <!-- 右侧控制面板 -->
             <div class="control-panel">
+                <div class="control-panel-scroll">
                 <section class="template-section">
                     <h3>🎨 选择背景模板</h3>
                     <div class="template-grid" id="templateGrid">
@@ -106,10 +119,12 @@
                     <button class="btn btn-primary" id="downloadBtn">💾 下载票根</button>
                     <button class="btn btn-secondary" id="resetBtn">🔄 重置</button>
                 </section>
+                </div>
             </div>
         </main>
     </div>
 
-    <script src="static/js/script.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/script.js"></script>
 </body>
 </html>

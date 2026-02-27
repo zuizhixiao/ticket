@@ -49,6 +49,34 @@ type UserInfoResponse struct {
 	UnionID    string `json:"unionid"`
 }
 
+// AccessTokenResponse 获取access_token响应
+type AccessTokenResponse struct {
+	AccessToken string `json:"access_token"`
+	ExpiresIn   int    `json:"expires_in"`
+	ErrCode     int    `json:"errcode"`
+	ErrMsg      string `json:"errmsg"`
+}
+
+// UserInfoByOpenIDResponse 根据openid获取用户信息响应（公众号）
+type UserInfoByOpenIDResponse struct {
+	Subscribe     int    `json:"subscribe"`      // 用户是否订阅该公众号标识，值为0时，代表此用户没有关注该公众号
+	OpenID        string `json:"openid"`         // 用户的标识
+	Nickname      string `json:"nickname"`       // 用户的昵称
+	Sex           int    `json:"sex"`            // 用户的性别，值为1时是男性，值为2时是女性，值为0时是未知
+	Language      string `json:"language"`       // 用户的语言
+	City          string `json:"city"`           // 用户所在城市
+	Province      string `json:"province"`       // 用户所在省份
+	Country       string `json:"country"`        // 用户所在国家
+	HeadImgURL    string `json:"headimgurl"`     // 用户头像
+	SubscribeTime int64  `json:"subscribe_time"` // 用户关注时间
+	UnionID       string `json:"unionid"`        // 只有在用户将公众号绑定到微信开放平台账号后，才会出现该字段
+	Remark        string `json:"remark"`         // 公众号运营者对粉丝的备注
+	GroupID       int    `json:"groupid"`        // 用户所在的分组ID
+	TagIDList     []int  `json:"tagid_list"`     // 用户被打上的标签ID列表
+	ErrCode       int    `json:"errcode"`
+	ErrMsg        string `json:"errmsg"`
+}
+
 // 微信公众号消息相关结构体
 
 // WXMessage 微信消息基础结构
@@ -194,6 +222,35 @@ func (wc *WechatClient) Code2Session(code string) (*Code2SessionResponse, error)
 	return &result, nil
 }
 
+// GetAccessToken 获取公众号access_token
+func (wc *WechatClient) GetAccessToken() (string, error) {
+	apiURL := "https://api.weixin.qq.com/cgi-bin/token"
+
+	params := url.Values{}
+	params.Set("grant_type", "client_credential")
+	params.Set("appid", wc.AppID)
+	params.Set("secret", wc.AppSecret)
+
+	fullURL := fmt.Sprintf("%s?%s", apiURL, params.Encode())
+
+	resp, err := http.Get(fullURL)
+	if err != nil {
+		return "", fmt.Errorf("请求微信access_token失败: %v", err)
+	}
+	defer resp.Body.Close()
+	fmt.Println(fullURL)
+	var result AccessTokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", fmt.Errorf("解析微信access_token响应失败: %v", err)
+	}
+
+	if result.ErrCode != 0 {
+		return "", fmt.Errorf("微信API错误: %d - %s", result.ErrCode, result.ErrMsg)
+	}
+
+	return result.AccessToken, nil
+}
+
 // GetUserInfo 获取用户信息（需要用户授权）
 func (wc *WechatClient) GetUserInfo(accessToken, openid string) (*UserInfoResponse, error) {
 	apiURL := "https://api.weixin.qq.com/sns/userinfo"
@@ -214,6 +271,35 @@ func (wc *WechatClient) GetUserInfo(accessToken, openid string) (*UserInfoRespon
 	var result UserInfoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("解析微信用户信息失败: %v", err)
+	}
+
+	return &result, nil
+}
+
+// GetUserInfoByOpenID 根据openid获取用户信息（需要用户关注公众号）
+func (wc *WechatClient) GetUserInfoByOpenID(accessToken, openid string) (*UserInfoByOpenIDResponse, error) {
+	apiURL := "https://api.weixin.qq.com/cgi-bin/user/info"
+
+	params := url.Values{}
+	params.Set("access_token", accessToken)
+	params.Set("openid", openid)
+	params.Set("lang", "zh_CN")
+
+	fullURL := fmt.Sprintf("%s?%s", apiURL, params.Encode())
+
+	resp, err := http.Get(fullURL)
+	if err != nil {
+		return nil, fmt.Errorf("请求微信用户信息失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	var result UserInfoByOpenIDResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("解析微信用户信息失败: %v", err)
+	}
+
+	if result.ErrCode != 0 {
+		return nil, fmt.Errorf("微信API错误: %d - %s", result.ErrCode, result.ErrMsg)
 	}
 
 	return &result, nil

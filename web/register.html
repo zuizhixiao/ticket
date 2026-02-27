@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册 - 电影纪念票生成平台</title>
+    <link rel="stylesheet" href="/static/css/auth.css">
+</head>
+<body class="auth-page">
+    <div class="auth-card">
+        <h1 class="auth-title">电影纪念票生成平台</h1>
+        <form class="auth-form" id="registerForm">
+            <div class="auth-form-group">
+                <div class="auth-input-wrap">
+                    <input type="text" id="nickname" name="nickname" placeholder="昵称" required autocomplete="username">
+                </div>
+            </div>
+            <div class="auth-form-group">
+                <div class="auth-captcha-wrap">
+                    <input type="text" id="captchaCode" name="code" placeholder="验证码" required maxlength="6">
+                    <div class="auth-captcha-img" id="captchaBox" title="点击刷新">
+                        <img id="captchaImg" alt="验证码">
+                    </div>
+                </div>
+                <input type="hidden" id="captchaId" name="captchaId">
+            </div>
+            <div class="auth-form-group">
+                <div class="auth-input-wrap">
+                    <input type="password" id="password" name="password" placeholder="密码" required autocomplete="new-password">
+                    <button type="button" class="auth-toggle-pwd" id="togglePwd1" aria-label="切换密码可见性">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div class="auth-form-group">
+                <div class="auth-input-wrap">
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="再次输入密码" required autocomplete="new-password">
+                    <button type="button" class="auth-toggle-pwd" id="togglePwd2" aria-label="切换密码可见性">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="auth-btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+                注册
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <a href="/login">返回登入</a>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+    <script>
+        function togglePwd(inputId, btnId) {
+            document.getElementById(btnId).addEventListener('click', function() {
+                const input = document.getElementById(inputId);
+                input.type = input.type === 'password' ? 'text' : 'password';
+            });
+        }
+        togglePwd('password', 'togglePwd1');
+        togglePwd('confirmPassword', 'togglePwd2');
+
+        async function loadCaptcha() {
+            const data = await AuthAPI.getCaptcha();
+            document.getElementById('captchaId').value = data.captchaId;
+            document.getElementById('captchaImg').src = data.captchaImg;
+        }
+
+        document.getElementById('captchaBox').addEventListener('click', loadCaptcha);
+        loadCaptcha();
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const pwd = document.getElementById('password').value;
+            const confirmPwd = document.getElementById('confirmPassword').value;
+            if (pwd !== confirmPwd) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            const nickname = document.getElementById('nickname').value.trim();
+            const captchaId = document.getElementById('captchaId').value;
+            const code = document.getElementById('captchaCode').value.trim();
+            const btn = this.querySelector('.auth-btn-primary');
+            if (!nickname || !captchaId || !code || !pwd) {
+                alert('请填写完整信息');
+                return;
+            }
+            btn.disabled = true;
+            try {
+                await AuthAPI.register(nickname, captchaId, code, pwd);
+                alert('注册成功，请登录');
+                window.location.href = '/login';
+            } catch (err) {
+                alert(err.message || '注册失败');
+                loadCaptcha();
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
