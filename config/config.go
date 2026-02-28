@@ -78,6 +78,7 @@ func Init() {
 				AccessKeySecret: os.Getenv("FILE_ACCESS_KEY_SECRET"),
 				Endpoint:        os.Getenv("FILE_ENDPOINT"),
 				Bucket:          os.Getenv("FILE_BUCKET"),
+				Type:            os.Getenv("FILE_TYPE"),
 			},
 			Mysql: Mysql{
 				Path:     os.Getenv("MYSQL_PATH"),
