@@ -153,7 +153,7 @@ func SavePic(c *gin.Context) {
 	filename := fmt.Sprintf("images/ticket/%s/%s/%d%s", imageType, dateFormat, time.Now().Unix(), ext)
 	bufferBytes, _ := io.ReadAll(file)
 
-	imageUrl, err := config.CosClient.PutFileWithBody(filename, bufferBytes)
+	imageUrl, err := config.FileFactoryClient.PutFileWithBody(filename, bufferBytes)
 	if err != nil {
 		response.Result(500, nil, err.Error(), c)
 		return

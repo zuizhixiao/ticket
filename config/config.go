@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
-	"ticket/package/cos"
+	"ticket/package/fileFactory"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
@@ -11,13 +11,13 @@ import (
 )
 
 var (
-	CosClient  *cos.Cos
-	GVA_CONFIG Params
-	GVA_DB     *gorm.DB
+	FileFactoryClient fileFactory.FileFactory
+	GVA_CONFIG        Params
+	GVA_DB            *gorm.DB
 )
 
 type Params struct {
-	Cos    Cos
+	File   File
 	Mysql  Mysql
 	Wechat Wechat
 	Jwt    Jwt
@@ -28,11 +28,12 @@ type Jwt struct {
 	ExpireSec int    `mapstructure:"expire_time" json:"expire_time" yaml:"expire_time"`
 }
 
-type Cos struct {
+type File struct {
 	AccessKeyId     string
 	AccessKeySecret string
 	Endpoint        string
 	Bucket          string
+	Type            string
 }
 
 type Mysql struct {
@@ -72,11 +73,11 @@ func Init() {
 		}
 	} else {
 		GVA_CONFIG = Params{
-			Cos: Cos{
-				AccessKeyId:     os.Getenv("COS_ACCESS_KEY_ID"),
-				AccessKeySecret: os.Getenv("COS_ACCESS_KEY_SECRET"),
-				Endpoint:        os.Getenv("COS_ENDPOINT"),
-				Bucket:          os.Getenv("COS_BUCKET"),
+			File: File{
+				AccessKeyId:     os.Getenv("FILE_ACCESS_KEY_ID"),
+				AccessKeySecret: os.Getenv("FILE_ACCESS_KEY_SECRET"),
+				Endpoint:        os.Getenv("FILE_ENDPOINT"),
+				Bucket:          os.Getenv("FILE_BUCKET"),
 			},
 			Mysql: Mysql{
 				Path:     os.Getenv("MYSQL_PATH"),
