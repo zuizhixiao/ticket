@@ -149,39 +149,37 @@ func SavePic(c *gin.Context) {
 		return
 	}
 
-	dateFormat := time.Unix(time.Now().Unix(), 0).Format("20060102")
-	filename := fmt.Sprintf("images/ticket/%s/%s/%d%s", imageType, dateFormat, time.Now().Unix(), ext)
-	bufferBytes, _ := io.ReadAll(file)
+	// 异步上传图片
+	go func() {
+		dateFormat := time.Unix(time.Now().Unix(), 0).Format("20060102")
+		filename := fmt.Sprintf("images/ticket/%s/%s/%d%s", imageType, dateFormat, time.Now().Unix(), ext)
+		bufferBytes, _ := io.ReadAll(file)
 
-	imageUrl, err := config.FileFactoryClient.PutFileWithBody(filename, bufferBytes)
-	if err != nil {
-		response.Result(500, nil, err.Error(), c)
-		return
-	}
-
-	// 解析 header 中的 token，获取用户 id
-	userId := 0
-	if tokenStr := getTokenFromRequest(c); tokenStr != "" {
-		if claims, err := jwt.ParseToken(tokenStr); err == nil {
-			userId = claims.UserId
+		imageUrl, err := config.FileFactoryClient.PutFileWithBody(filename, bufferBytes)
+		if err != nil {
+			response.Result(500, nil, err.Error(), c)
+			return
 		}
-	}
 
-	image := model.Image{
-		UserId:   userId,
-		Type:     imageType,
-		Filename: header.Filename,
-		Url:      imageUrl,
-		Ip:       c.ClientIP(),
-	}
-	image.Create(config.GVA_DB)
+		// 解析 header 中的 token，获取用户 id
+		userId := 0
+		if tokenStr := getTokenFromRequest(c); tokenStr != "" {
+			if claims, err := jwt.ParseToken(tokenStr); err == nil {
+				userId = claims.UserId
+			}
+		}
 
+		image := model.Image{
+			UserId:   userId,
+			Type:     imageType,
+			Filename: header.Filename,
+			Url:      imageUrl,
+			Ip:       c.ClientIP(),
+		}
+		image.Create(config.GVA_DB)
+	}()
 	// 返回成功响应
-	response.Success(gin.H{
-		"filename": filename,
-		"size":     header.Size,
-		"type":     contentType,
-	}, c)
+	response.Success("上传成功", c)
 }
 
 // GetUserProductList 获取登录用户成品列表
