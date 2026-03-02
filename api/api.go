@@ -176,6 +176,7 @@ func SavePic(c *gin.Context) {
 			Url:      imageUrl,
 			Ip:       c.ClientIP(),
 		}
+
 		image.Create(config.GVA_DB)
 	}()
 	// 返回成功响应
