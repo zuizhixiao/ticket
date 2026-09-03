@@ -251,13 +251,11 @@ function downloadPreview() {
           </button>
           <button class="btn btn-ghost" @click="resetEditor">重置</button>
         </div>
-        <p class="small muted" style="text-align: center">
+        <p v-if="wechat || auth.token" class="small muted" style="text-align: center">
           {{
             wechat
               ? '生成后长按图片即可保存到相册 📱'
-              : auth.token
-                ? '已生成,自动下载并同步到「我的成品」💾'
-                : '无需登录,生成后同步保存到云端并自动下载 💾'
+              : '已生成,自动下载并同步到「我的成品」💾'
           }}
         </p>
       </section>

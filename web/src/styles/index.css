@@ -746,13 +746,13 @@ img {
 }
 
 /* ---------- 编辑器布局 ---------- */
-/* 预览舞台收窄为固定列,右侧控制面板更宽;整体限宽居中 */
+/* 预览高度尽量接近可视区上限;预览列宽度随可用高度按 1:2 推导,不再固定过宽 */
 .editor-main {
   display: grid;
-  grid-template-columns: 440px minmax(0, 1fr);
+  grid-template-columns: min(540px, calc((100vh - 240px) / 2 + 46px)) minmax(0, 1fr);
   gap: 26px;
   padding: 26px 24px 60px;
-  max-width: 1160px;
+  max-width: 1240px;
   margin: 0 auto;
   align-items: start;
 }
@@ -761,20 +761,45 @@ img {
   min-width: 0;
 }
 
+/* 大屏(双栏)适配:整体收入一屏——预览高度按视口封顶、右侧面板内部滚动,避免整页滚动 */
+@media (min-width: 1181px) {
+  .editor-main {
+    padding: 20px 24px 32px;
+    align-items: start;
+  }
+  .stage-wrap > * {
+    width: 100%;
+  }
+  .stage canvas {
+    display: block;
+    max-height: calc(100vh - 240px);
+    max-width: 100%;
+    width: auto;
+    margin: 0 auto;
+  }
+  .control-panel {
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.3) transparent;
+  }
+}
+
 @media (max-width: 1180px) {
   .editor-main {
     grid-template-columns: 1fr;
   }
 }
 
-/* 单列(≤1180)时:预览宽度随视口连续缩放(无固定最小值),配置区限宽居中 */
+/* 单列(≤1180)时:预览宽度随视口连续缩放且上限收小,配置区限宽居中 */
 @media (max-width: 1180px) {
   .stage-wrap {
     align-items: center;
     gap: 10px;
   }
   .stage-wrap > * {
-    width: min(100%, 500px, 58vw);
+    width: min(100%, 430px, 52vw);
   }
   .stage-wrap > p {
     text-align: center;
