@@ -6,7 +6,7 @@
 # 若你的构建环境可直连 Docker Hub,去掉前缀即可使用官方镜像:
 #   node:22-alpine / golang:1.24-alpine / alpine:3.20
 
-FROM registry.cn-hangzhou.aliyuncs.com/open_images/node:22-alpin AS ui
+FROM registry.cn-hangzhou.aliyuncs.com/open_images/node:22-alpine AS ui
 WORKDIR /src
 COPY . .
 WORKDIR /src/web
