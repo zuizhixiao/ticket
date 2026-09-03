@@ -77,11 +77,6 @@ async function doLogin() {
               <span v-if="busy" class="spinner"></span>登 录 管 理 后 台
             </button>
           </form>
-
-          <div class="row" style="justify-content: space-between; margin-top: 16px">
-            <RouterLink to="/login" class="small muted">← 用户登录</RouterLink>
-            <span class="small muted">账号与密码见初始化 SQL 说明</span>
-          </div>
         </div>
       </div>
     </div>

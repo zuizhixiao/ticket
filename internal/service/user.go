@@ -30,6 +30,8 @@ var (
 	ErrPasswordLen     = errors.New("密码需为 6-64 位")
 	ErrWechatService   = errors.New("微信服务暂不可用")
 	ErrNotSubscribed   = errors.New("请先关注公众号后再试")
+	ErrAdminProtected  = errors.New("管理员账号不可冻结")
+	ErrSelfOperate     = errors.New("不能对自己执行该操作")
 )
 
 const (
@@ -237,4 +239,71 @@ func WeChatLogin(db *gorm.DB, code string, wc *wechat.Client) (*model.User, stri
 	}
 	token, err := issueToken(u)
 	return u, token, isNew, err
+}
+
+// ---------- 管理员:用户管理 ----------
+
+// AdminListUsers 分页用户列表(昵称模糊搜索)。
+func AdminListUsers(db *gorm.DB, keyword string, page, size int) ([]model.User, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if size < 1 || size > 100 {
+		size = 20
+	}
+	list, err := repository.ListUsers(db, keyword, page, size)
+	if err != nil {
+		return nil, 0, err
+	}
+	total, err := repository.CountUsers(db, keyword)
+	if err != nil {
+		return nil, 0, err
+	}
+	return list, total, nil
+}
+
+// AdminSetUserStatus 冻结(0)/解冻(1)普通用户账号。
+func AdminSetUserStatus(db *gorm.DB, operatorID, targetID int, status int) error {
+	target, err := repository.GetUserByID(db, targetID)
+	if err != nil {
+		if repository.IsNotFound(err) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+	if target.Role == model.RoleAdmin {
+		return ErrAdminProtected
+	}
+	if targetID == operatorID {
+		return ErrSelfOperate
+	}
+	now := time.Now().Unix()
+	return repository.UpdateUserFields(db, targetID, map[string]any{
+		"status": status, "updateTime": now,
+	})
+}
+
+// AdminResetUserPassword 重置任意用户(不含管理员保护?允许重置普通用户)密码。
+func AdminResetUserPassword(db *gorm.DB, targetID int, password string) error {
+	if err := validatePassword(password); err != nil {
+		return err
+	}
+	target, err := repository.GetUserByID(db, targetID)
+	if err != nil {
+		if repository.IsNotFound(err) {
+			return ErrUserNotFound
+		}
+		return err
+	}
+	if target.Role == model.RoleAdmin {
+		return ErrAdminProtected
+	}
+	hash, err := HashPassword(password)
+	if err != nil {
+		return err
+	}
+	now := time.Now().Unix()
+	return repository.UpdateUserFields(db, targetID, map[string]any{
+		"password": hash, "updateTime": now,
+	})
 }

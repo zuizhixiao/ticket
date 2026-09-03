@@ -151,6 +151,8 @@ func replyServiceError(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, service.ErrNicknameTaken), errors.Is(err, service.ErrNicknameLen), errors.Is(err, service.ErrPasswordLen):
 		response.BizError(c, err.Error())
+	case errors.Is(err, service.ErrAdminProtected), errors.Is(err, service.ErrSelfOperate):
+		response.Forbidden(c, err.Error())
 	case errors.Is(err, service.ErrUserNotFound), errors.Is(err, service.ErrTemplateNotFound),
 		errors.Is(err, service.ErrImageNotFound), errors.Is(err, service.ErrNotYourImage):
 		response.NotFound(c, err.Error())

@@ -67,6 +67,9 @@ func registerAPI(r *gin.Engine, cfg *config.Config) {
 		admin.DELETE("/admin/templates/:id", handler.AdminDeleteTemplate)
 		admin.GET("/admin/images", handler.AdminImages)
 		admin.DELETE("/admin/images/:id", handler.AdminDeleteImage)
+		admin.GET("/admin/users", handler.AdminUsers)
+		admin.PUT("/admin/users/:id/status", handler.AdminUserStatus)
+		admin.PUT("/admin/users/:id/password", handler.AdminUserResetPassword)
 	}
 }
 

@@ -3,10 +3,12 @@ package handler
 import (
 	"errors"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
 	"ticket/internal/config"
+	"ticket/internal/middleware"
 	"ticket/internal/model"
 	"ticket/internal/pkg/response"
 	"ticket/internal/repository"
@@ -88,6 +90,70 @@ func AdminDeleteImage(c *gin.Context) {
 		return
 	}
 	response.OKMessage(c, "已删除", nil)
+}
+
+// AdminUsers 用户列表(keyword 昵称模糊,分页)。
+func AdminUsers(c *gin.Context) {
+	keyword := strings.TrimSpace(c.Query("keyword"))
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	size, _ := strconv.Atoi(c.DefaultQuery("size", "20"))
+	list, total, err := service.AdminListUsers(config.DB, keyword, page, size)
+	if err != nil {
+		response.ServerError(c, "查询失败")
+		return
+	}
+	response.OK(c, gin.H{"list": list, "total": total, "page": page, "size": size})
+}
+
+// AdminUserStatus 冻结(0)/解冻(1)。
+func AdminUserStatus(c *gin.Context) {
+	operator, _ := middleware.ClaimsOf(c)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.ParamError(c, "参数错误")
+		return
+	}
+	var req struct {
+		Status int `json:"status"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, "参数格式错误")
+		return
+	}
+	if req.Status != 0 && req.Status != 1 {
+		response.ParamError(c, "status 仅支持 0(冻结)/1(正常)")
+		return
+	}
+	if err := service.AdminSetUserStatus(config.DB, operator.UserId, id, req.Status); err != nil {
+		replyServiceError(c, err)
+		return
+	}
+	if req.Status == 0 {
+		response.OKMessage(c, "账号已冻结", nil)
+	} else {
+		response.OKMessage(c, "账号已解冻", nil)
+	}
+}
+
+// AdminUserResetPassword 重置用户密码。
+func AdminUserResetPassword(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		response.ParamError(c, "参数错误")
+		return
+	}
+	var req struct {
+		Password string `json:"password"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, "参数格式错误")
+		return
+	}
+	if err := service.AdminResetUserPassword(config.DB, id, req.Password); err != nil {
+		replyServiceError(c, err)
+		return
+	}
+	response.OKMessage(c, "密码已重置", nil)
 }
 
 // AdminDeleteTemplate 软删模板。

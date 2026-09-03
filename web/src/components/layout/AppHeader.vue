@@ -27,17 +27,20 @@ function closeAll() {
   menuOpen.value = false
 }
 
-// 管理员「更多」:成品列表 / 海报列表 / 模板管理 / 退出
-function adminMore(kind: 'product' | 'poster' | 'templates') {
+// 管理员「更多」:成品列表 / 海报列表 / 用户列表 / 模板管理 / 退出
+function adminMore(kind: 'product' | 'poster' | 'users' | 'templates') {
   dropdownOpen.value = false
   if (kind === 'templates') router.push('/admin/templates')
+  else if (kind === 'users') router.push('/admin/users')
   else router.push({ path: '/admin', query: { view: kind } })
 }
 
 function logout() {
+  const wasAdmin = auth.isAdmin
   closeAll()
   auth.logout()
-  router.push('/')
+  // 管理员退出回管理员登录页;普通用户回首页
+  router.push(wasAdmin ? '/admin/login' : '/')
 }
 
 function onDocClick() {
@@ -92,6 +95,7 @@ const initial = (auth.user?.nickname || '用').slice(0, 1)
           <div v-if="dropdownOpen" class="dropdown">
             <button class="dropdown-item" @click="adminMore('product')">🎞️ 成品列表</button>
             <button class="dropdown-item" @click="adminMore('poster')">🖼️ 海报列表</button>
+            <button class="dropdown-item" @click="adminMore('users')">👥 用户列表</button>
             <button class="dropdown-item" @click="adminMore('templates')">🛠️ 模板管理</button>
             <div style="height: 1px; background: var(--border); margin: 6px 10px"></div>
             <button class="dropdown-item danger" @click="logout">退出登录</button>

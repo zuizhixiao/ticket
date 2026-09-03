@@ -60,8 +60,10 @@ async function saveNickname() {
 }
 
 function logout() {
+  const wasAdmin = auth.isAdmin
   auth.logout()
-  router.push('/')
+  // 管理员退出回管理员登录页;普通用户回首页
+  router.push(wasAdmin ? '/admin/login' : '/')
 }
 </script>
 

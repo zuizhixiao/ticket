@@ -6,9 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"ticket/internal/config"
 	"ticket/internal/model"
 	"ticket/internal/pkg/jwt"
 	"ticket/internal/pkg/response"
+	"ticket/internal/repository"
 )
 
 const ctxClaimsKey = "ticket.claims"
@@ -17,6 +19,7 @@ const ctxClaimsKey = "ticket.claims"
 type JWT struct{ *jwt.Claims }
 
 // JWTAuth 校验 Authorization: Bearer <token>(兼容 token 请求头)。
+// 同时实时核对账号状态与角色:冻结账号立即失效、角色变更即时生效。
 func JWTAuth(secret string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenStr := extractToken(c)
@@ -29,6 +32,19 @@ func JWTAuth(secret string) gin.HandlerFunc {
 			response.Unauthorized(c, "登录已过期,请重新登录")
 			return
 		}
+		user, err := repository.GetUserByID(config.DB, claims.UserId)
+		if err != nil || user == nil {
+			response.Unauthorized(c, "账号不存在,请重新登录")
+			return
+		}
+		if user.Status != model.StatusNormal {
+			response.Forbidden(c, "账号已被冻结")
+			return
+		}
+		// 用库中最新的昵称/角色覆盖令牌内旧值
+		claims.Role = user.Role
+		claims.Nickname = user.Nickname
+		claims.Avatar = user.Avatar
 		c.Set(ctxClaimsKey, &JWT{Claims: claims})
 		c.Next()
 	}

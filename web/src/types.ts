@@ -44,6 +44,18 @@ export interface AdminImageRow {
   createTime: number
 }
 
+// 管理后台用户行
+export interface AdminUser {
+  id: number
+  nickname: string
+  avatar: string
+  openid: string
+  role: number // 0 普通 / 1 管理员
+  status: number // 1 正常 / 0 冻结
+  createTime?: number
+  lastLoginTime?: number | null
+}
+
 export interface Paged<T> {
   list: T[]
   total: number

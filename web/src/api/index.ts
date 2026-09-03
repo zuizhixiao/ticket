@@ -1,6 +1,7 @@
 import { http } from './http'
 import type {
   AdminImageRow,
+  AdminUser,
   CaptchaResult,
   LoginResult,
   Paged,
@@ -56,5 +57,13 @@ export const adminApi = {
   remove: (id: number) => http.del(`/admin/templates/${id}`),
   images: (type: 'product' | 'poster', page = 1, size = 24) =>
     http.get<Paged<AdminImageRow>>(`/admin/images?type=${type}&page=${page}&size=${size}`),
-  removeImage: (id: number) => http.del(`/admin/images/${id}`)
+  removeImage: (id: number) => http.del(`/admin/images/${id}`),
+  users: (keyword = '', page = 1, size = 20) =>
+    http.get<Paged<AdminUser>>(
+      `/admin/users?keyword=${encodeURIComponent(keyword)}&page=${page}&size=${size}`
+    ),
+  userStatus: (id: number, status: number) =>
+    http.put(`/admin/users/${id}/status`, { status }),
+  userPassword: (id: number, password: string) =>
+    http.put(`/admin/users/${id}/password`, { password })
 }

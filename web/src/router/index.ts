@@ -62,6 +62,12 @@ const router = createRouter({
       component: () => import('@/views/admin/TemplatesAdmin.vue'),
       meta: { title: '模板管理', auth: true, admin: true }
     },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: () => import('@/views/admin/UsersAdmin.vue'),
+      meta: { title: '用户管理', auth: true, admin: true }
+    },
     { path: '/:pathMatch(.*)*', redirect: '/' }
   ]
 })
