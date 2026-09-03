@@ -13,3 +13,5 @@ web/dist/
 internal/assets/dist/assets/
 internal/assets/dist/*
 !internal/assets/dist/index.html
+
+scripts/admin_setup.sql

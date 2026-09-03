@@ -45,6 +45,18 @@ const router = createRouter({
       meta: { title: '我的成品', auth: true }
     },
     {
+      path: '/admin/login',
+      name: 'admin-login',
+      component: () => import('@/views/admin/AdminLogin.vue'),
+      meta: { title: '管理员登录' }
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/admin/AdminPanel.vue'),
+      meta: { title: '管理后台', auth: true, admin: true }
+    },
+    {
       path: '/admin/templates',
       name: 'admin-templates',
       component: () => import('@/views/admin/TemplatesAdmin.vue'),
@@ -57,6 +69,14 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
 
+  // 管理后台独立入口:未登录或非管理员一律去 /admin/login
+  if (to.meta.admin) {
+    if (!auth.token || !auth.isAdmin) {
+      return { path: '/admin/login', query: { redirect: to.fullPath } }
+    }
+    return true
+  }
+
   if (to.meta.auth && !auth.token) {
     return { path: '/login', query: { redirect: to.fullPath } }
   }
@@ -68,10 +88,6 @@ router.beforeEach(async (to) => {
     } catch {
       /* 已由 http 层处理 401 跳转 */
     }
-  }
-
-  if (to.meta.admin && !auth.isAdmin) {
-    return { path: '/' }
   }
   return true
 })

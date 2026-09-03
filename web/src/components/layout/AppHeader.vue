@@ -27,6 +27,13 @@ function closeAll() {
   menuOpen.value = false
 }
 
+// 管理员「更多」:成品列表 / 海报列表 / 模板管理 / 退出
+function adminMore(kind: 'product' | 'poster' | 'templates') {
+  dropdownOpen.value = false
+  if (kind === 'templates') router.push('/admin/templates')
+  else router.push({ path: '/admin', query: { view: kind } })
+}
+
 function logout() {
   closeAll()
   auth.logout()
@@ -52,37 +59,66 @@ const initial = (auth.user?.nickname || '用').slice(0, 1)
 <template>
   <header class="header">
     <div class="header-inner">
-      <RouterLink to="/" class="brand" @click="closeAll">
-        <span class="brand-mark">🎬</span>
+      <RouterLink
+        :to="auth.isAdmin ? { path: '/admin', query: { view: 'product' } } : '/'"
+        class="brand"
+        @click="closeAll"
+      >
+        <span class="brand-mark">{{ auth.isAdmin ? '🛠️' : '🎬' }}</span>
         <span class="brand-name">
-          电影纪念票根
-          <span class="brand-sub">Cinema Ticket</span>
+          {{ auth.isAdmin ? '管理后台' : '电影纪念票根' }}
+          <span class="brand-sub">{{ auth.isAdmin ? 'Admin Console' : 'Cinema Ticket' }}</span>
         </span>
       </RouterLink>
 
-      <!-- 桌面横排 / 小屏下拉菜单(登录入口走右上角独立按钮,不在此重复) -->
-      <nav class="nav" :class="{ open: menuOpen }">
-        <RouterLink v-if="auth.isAuthed" class="nav-link" to="/products" @click="closeAll">
-          我的成品
-        </RouterLink>
-        <RouterLink v-if="auth.isAdmin" class="nav-link" to="/admin/templates" @click="closeAll">
-          模板管理
-        </RouterLink>
+      <!-- 左侧直达链接(普通用户) -->
+      <nav v-if="auth.isAuthed && !auth.isAdmin" class="quick-nav">
+        <RouterLink class="nav-link" to="/products" @click="closeAll">我的成品</RouterLink>
       </nav>
 
-      <div class="header-right">
-        <!-- 汉堡(仅小屏且已登录时显示) -->
+      <!-- ============ 管理员:右上角三横线 = 「更多」菜单 ============ -->
+      <div v-if="auth.isAdmin" class="header-right">
+        <div class="user-zone">
+          <button
+            class="nav-toggle"
+            :class="{ open: dropdownOpen }"
+            aria-label="更多菜单"
+            @click="toggleDropdown"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+          <div v-if="dropdownOpen" class="dropdown">
+            <button class="dropdown-item" @click="adminMore('product')">🎞️ 成品列表</button>
+            <button class="dropdown-item" @click="adminMore('poster')">🖼️ 海报列表</button>
+            <button class="dropdown-item" @click="adminMore('templates')">🛠️ 模板管理</button>
+            <div style="height: 1px; background: var(--border); margin: 6px 10px"></div>
+            <button class="dropdown-item danger" @click="logout">退出登录</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 普通登录用户 ============ -->
+      <div v-else class="header-right">
         <button
           v-if="auth.isAuthed"
           class="nav-toggle"
           :class="{ open: menuOpen }"
-          aria-label="菜单"
+          aria-label="更多菜单"
           @click="toggleMenu"
         >
           <span></span>
           <span></span>
           <span></span>
         </button>
+
+        <nav v-if="menuOpen" class="menu-pop" @click.stop>
+          <RouterLink class="dropdown-item" to="/products" @click="closeAll">🎞️ 我的成品</RouterLink>
+          <RouterLink class="dropdown-item" to="/me" @click="closeAll">👤 个人中心</RouterLink>
+          <div style="height: 1px; background: var(--border); margin: 6px 10px"></div>
+          <button class="dropdown-item danger" @click="logout">退出登录</button>
+        </nav>
 
         <div class="user-zone">
           <template v-if="auth.isAuthed">
@@ -95,14 +131,6 @@ const initial = (auth.user?.nickname || '用').slice(0, 1)
             <div v-if="dropdownOpen" class="dropdown">
               <RouterLink class="dropdown-item" to="/me" @click="closeAll">个人中心</RouterLink>
               <RouterLink class="dropdown-item" to="/products" @click="closeAll">我的成品</RouterLink>
-              <RouterLink
-                v-if="auth.isAdmin"
-                class="dropdown-item"
-                to="/admin/templates"
-                @click="closeAll"
-              >
-                模板管理
-              </RouterLink>
               <button class="dropdown-item danger" @click="logout">退出登录</button>
             </div>
           </template>

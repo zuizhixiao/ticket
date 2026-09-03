@@ -214,7 +214,7 @@ img {
   margin-top: -4px;
 }
 
-.nav {
+.quick-nav {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -238,6 +238,29 @@ img {
 .nav-link.router-link-active {
   color: var(--gold-2);
   background: rgba(212, 175, 55, 0.12);
+}
+
+/* 三横线展开的「更多」下拉菜单 */
+.menu-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  min-width: 236px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(22, 20, 30, 0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+  z-index: 80;
+  animation: fadeUp 0.18s ease both;
+}
+
+.menu-pop .dropdown-item {
+  width: 100%;
 }
 
 /* 用户区 */
@@ -1118,9 +1141,9 @@ img {
 
 /* ============ 小屏适配 ============ */
 
-/* 汉堡按钮(默认隐藏,<=760 显示) */
+/* 汉堡按钮(登录后常驻 =「更多」菜单入口) */
 .nav-toggle {
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -1128,7 +1151,6 @@ img {
   width: 36px;
   height: 36px;
   flex-shrink: 0;
-  margin-left: auto;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -1151,6 +1173,84 @@ img {
 /* 模板管理后台画廊 */
 .admin-grid {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/* 管理后台 成品/海报 列表:窄屏一行 2 条小图;≥900px 才自动多列 */
+.admin-imgs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 900px) {
+  .admin-imgs {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}
+
+/* 卡片:整张图完整显示(不裁切,含顶部),删除 ✕ 在右上角 */
+.admin-img-card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border);
+  cursor: zoom-in;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-img-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.admin-img-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.admin-rm {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 0 0 0 14px;
+  background: rgba(12, 11, 16, 0.62);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, background 0.18s ease;
+}
+
+.admin-img-card:hover .admin-rm {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.admin-rm:hover {
+  background: var(--danger);
+}
+
+.admin-rm:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 触屏设备无 hover:删除按钮常显 */
+@media (hover: none) {
+  .admin-rm {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* 管理后台弹窗预览图(小屏自动换行堆叠) */
@@ -1510,12 +1610,13 @@ img {
   }
 }
 
-/* 顶栏右侧聚合区:登录按钮/汉堡+头像始终贴最右 */
+/* 顶栏右侧聚合区:登录按钮/三横线更多+头像始终贴最右 */
 .header-right {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-left: auto;
+  position: relative;
 }
 
 .header-right .nav-toggle {
@@ -1525,6 +1626,10 @@ img {
 @media (max-width: 760px) {
   .header-right {
     gap: 6px;
+  }
+  /* 小屏:左侧直达链接收进三横线菜单,只保留品牌+更多+头像 */
+  .quick-nav {
+    display: none;
   }
 }
 

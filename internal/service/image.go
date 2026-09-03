@@ -139,3 +139,37 @@ func DeleteUserProduct(db *gorm.DB, userId, imageId int) error {
 	}
 	return repository.DeleteImageByID(db, imageId)
 }
+
+// AdminListImages 管理后台按类型分页查看全部图片。
+func AdminListImages(db *gorm.DB, imgType string, page, size int) ([]repository.AdminImageRow, int64, error) {
+	if page < 1 {
+		page = 1
+	}
+	if size < 1 || size > 100 {
+		size = 24
+	}
+	list, err := repository.AdminPageImagesByType(db, imgType, page, size)
+	if err != nil {
+		return nil, 0, err
+	}
+	total, err := repository.CountImageByType(db, imgType)
+	if err != nil {
+		return nil, 0, err
+	}
+	return list, total, nil
+}
+
+// AdminDeleteImage 管理员删除任意图片(先删存储对象,再删记录)。
+func AdminDeleteImage(db *gorm.DB, imageId int) error {
+	img, err := repository.GetImageByID(db, imageId)
+	if err != nil {
+		if repository.IsNotFound(err) {
+			return ErrImageNotFound
+		}
+		return err
+	}
+	if storage.Default != nil && img.Object != "" {
+		_ = storage.Default.Delete(context.Background(), img.Object)
+	}
+	return repository.DeleteImageByID(db, imageId)
+}

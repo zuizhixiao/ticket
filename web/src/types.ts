@@ -32,6 +32,18 @@ export interface ProductImage {
   createTime: number
 }
 
+// 管理后台列表行(图片 + 上传者昵称)
+export interface AdminImageRow {
+  id: number
+  type: string
+  userId: number
+  filename: string
+  url: string
+  ip?: string
+  nickname: string
+  createTime: number
+}
+
 export interface Paged<T> {
   list: T[]
   total: number

@@ -1,5 +1,14 @@
 import { http } from './http'
-import type { CaptchaResult, LoginResult, Paged, ProductImage, Template, UploadResult, User } from '@/types'
+import type {
+  AdminImageRow,
+  CaptchaResult,
+  LoginResult,
+  Paged,
+  ProductImage,
+  Template,
+  UploadResult,
+  User
+} from '@/types'
 
 // ---------- auth ----------
 export const authApi = {
@@ -39,9 +48,13 @@ export const productApi = {
 
 // ---------- admin ----------
 export const adminApi = {
-  templates: (status = 0) => http.get<{ list: Template[]; total: number }>(`/admin/templates?status=${status}`),
+  templates: (status = 0) =>
+    http.get<{ list: Template[]; total: number }>(`/admin/templates?status=${status}`),
   create: (payload: Partial<Template>) => http.post<Template>('/admin/templates', payload),
   update: (id: number, payload: Partial<Template>) =>
     http.put<Template>(`/admin/templates/${id}`, payload),
-  remove: (id: number) => http.del(`/admin/templates/${id}`)
+  remove: (id: number) => http.del(`/admin/templates/${id}`),
+  images: (type: 'product' | 'poster', page = 1, size = 24) =>
+    http.get<Paged<AdminImageRow>>(`/admin/images?type=${type}&page=${page}&size=${size}`),
+  removeImage: (id: number) => http.del(`/admin/images/${id}`)
 }

@@ -264,6 +264,9 @@ const titles: Record<string, string> = {
         <div class="auth-footer muted">
           {{ titles[currentMode] }}即表示同意本站的
           <span class="text-gold-grad">服务条款</span>
+          <div v-if="currentMode === 'login'" class="mt-1">
+            <RouterLink to="/admin/login" class="small" style="opacity: 0.85">🔐 管理员入口 →</RouterLink>
+          </div>
         </div>
       </div>
     </div>
