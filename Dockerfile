@@ -1,34 +1,28 @@
-FROM registry.cn-hangzhou.aliyuncs.com/open_images/go-alpine:1.24.1 AS builder
+# 多阶段构建:node 构建 Vue 产物 → Go 编译单二进制(内嵌前端)。
+# 生产运行配置走环境变量(参见 config.example.yaml / README)。
 
-LABEL stage=gobuilder
+FROM node:22-alpine AS ui
+WORKDIR /src
+COPY . .
+WORKDIR /src/web
+# --ignore-scripts:npm 11 默认拦截 esbuild 安装脚本;二进制由可选依赖提供,不影响构建
+RUN npm ci --ignore-scripts \
+    && npm run build
 
-ENV CGO_ENABLED 0
-ENV GOOS linux
-ENV GOPROXY https://goproxy.cn,direct
+FROM golang:1.24-alpine AS builder
+WORKDIR /build
+COPY --from=ui /src/go.mod ./go.mod
+COPY --from=ui /src/go.sum ./go.sum
+COPY --from=ui /src/cmd ./cmd
+COPY --from=ui /src/internal ./internal
+ENV CGO_ENABLED=0 GOPROXY=https://goproxy.cn,direct
+RUN go mod download \
+    && go build -ldflags="-s -w" -o ticket ./cmd/server
 
-WORKDIR /var/www
-
-ADD . .
-
-RUN go mod tidy
-
-# 安装statik工具
-RUN go install github.com/rakyll/statik 
-
-RUN statik -src="./web" -f
-
-RUN go build
-
-FROM registry.cn-hangzhou.aliyuncs.com/open_images/alpine
-
-ENV TZ Asia/Shanghai
-
-WORKDIR /app/project
-
-COPY --from=builder /var/www ./
-
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates tzdata \
+    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+WORKDIR /app
+COPY --from=builder /build/ticket ./ticket
 EXPOSE 8080
-
-RUN chmod +x /app/project/ticket
-
-CMD ["./ticket"]
+ENTRYPOINT ["./ticket"]

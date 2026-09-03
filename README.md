@@ -1,154 +1,130 @@
-# 电影纪念票根生成器
+# 🎬 电影纪念票根生成器(Cinema Ticket)
 
-一个基于Go语言和HTML5 Canvas的电影纪念票根生成器，支持自定义模板、海报上传和票根信息编辑。
+在线生成"电影纪念票根"的 Web 应用:选择背景模板、上传电影海报、定制文字信息,前端 Canvas 实时合成 700×1400 票根图,一键保存到云端"我的成品"并下载到本地;支持微信内长按保存与公众号验证码登录,运营者可维护系统模板。
 
-## 功能特性
+本仓库为 2026 年的全面重构版本:**Go(Gin)分层后端 + Vue 3 暗色影院风格前端,单二进制内嵌前端产物**。旧版代码可从 git 历史回溯。
 
-- 🎬 多种票根模板选择
-- 🖼️ 海报图片上传和预览
-- ✏️ 自定义票根信息（电影标题、影院、时间等）
-- 💾 本地下载票根图片
-- ☁️ **新增：自动上传票根图片至服务端**
-- 📱 微信浏览器兼容性支持
+## ✨ 功能
 
+- **票根编辑器**:系统模板宫格、海报拖拽/点击上传、语言/格式/影院/影厅座位/时间/专属 ID 编辑、标题与正文字号滑杆、Canvas 实时预览
+- **账号体系**:图形验证码注册 / 昵称登录 / 找回密码 / JWT;密码 bcrypt(兼容旧 MD5 自动升级)
+- **成品管理**:生成票根自动上传对象存储并入"我的成品",支持分页浏览、灯箱大图、下载、删除
+- **微信**:公众号消息自动回复;发送"验证码"获取 6 位码 → 网页输入兑换登录(自动绑定 openid)
+- **模板管理后台**:管理员新增/编辑/上架/下架系统模板(上传背景图 + 标题/正文颜色)
+- **本地零依赖开发**:支持纯 Go SQLite(见下),无需安装 MySQL 即可起服务
 
-## 技术架构
+## 🧱 技术栈
 
-- **后端**: Go + Gin框架
-- **前端**: HTML5 + JavaScript + Canvas
-- **静态资源**: 使用statik打包前端资源
-- **图片处理**: 支持PNG、JPG、GIF、BMP、WebP格式
+| 层 | 选型 |
+|---|---|
+| 后端 | Go 1.24 · Gin · GORM(MySQL / SQLite) · go:embed |
+| 对象存储 | MinIO/S3 兼容(`mos`)与腾讯云 COS(`cos`)双实现 |
+| 前端 | Vue 3 · TypeScript · Vite · Vue Router · Pinia(自研设计系统,无重型 UI 库) |
+| 其他 | base64 图形验证码 · 公众号 XML 消息处理 · JWT(HS256) |
 
-## 新增功能：图片上传至服务端
+## 📁 目录结构
 
-### 功能说明
-当用户下载票根时，系统会自动将生成的票根图片上传至服务端存储，同时保持原有的本地下载功能。
+```
+cmd/server/            入口
+internal/
+  assets/              go:embed 内嵌前端产物(internal/assets/dist)
+  config/              配置加载(yaml / 环境变量)
+  database/            MySQL 或 SQLite 连接与 AutoMigrate
+  model/               user / image / template(GORM)
+  repository/          数据访问
+  service/             业务编排(密码、验证码、上传、模板、微信登录)
+  handler/             HTTP 处理
+  middleware/          JWT / AdminOnly / CORS
+  router/              路由 + SPA 回退 + 静态资源
+  pkg/                 response / jwt / captcha / storage / wechat
+web/                   Vue 3 前端(Vite 产物输出至 ../internal/assets/dist)
+scripts/               build.ps1 / build.sh 一键构建
+Dockerfile             多阶段:node 构建 UI → Go 编译 → alpine 运行
+DESIGN.md              重构契约(架构/API/数据模型/设计语言)
+```
 
-### 技术实现
-- **API接口**: `POST /api/upload/image`
-- **文件存储**: 自动创建`uploads/`目录存储图片
-- **文件命名**: 使用时间戳生成唯一文件名，避免冲突
-- **格式支持**: PNG、JPG、JPEG、GIF、BMP、WebP
-- **文件大小**: 最大支持10MB
+## 🚀 快速开始
 
-### 上传流程
-1. 用户点击下载按钮
-2. 系统验证必填字段和海报上传
-3. **自动上传票根图片至服务端**
-4. 显示上传成功提示
-5. 继续执行本地下载功能
+### 本地开发
 
-### 错误处理
-- 上传失败不影响本地下载功能
-- 支持的文件格式验证
-- 文件大小限制
-- 服务端错误友好提示
-
-## 快速开始
-
-### 环境要求
-- Go 1.24.1+
-- 现代浏览器（支持HTML5 Canvas）
-
-### 安装运行
 ```bash
-# 克隆项目
-git clone <repository-url>
-cd ticket
+# 1) 后端(默认读 config.yaml;可用 SQLite 免装 MySQL)
+cp config.example.yaml config.yaml   # 并填入你的配置;或用 sqlite
+$env:MYSQL_DRIVER='sqlite'           # PowerShell;bash 用 export
+$env:MYSQL_PATH='./data.db'
+go run ./cmd/server                  # http://127.0.0.1:8080
 
-# 安装依赖
-go mod tidy
-
-# 运行服务
-go run main.go
+# 2) 前端(热更新)
+cd web && npm install --ignore-scripts && npm run dev # http://127.0.0.1:5173, /api 代理到 8080
 ```
 
-### 访问应用
-打开浏览器访问 `http://localhost:8080`
+### 构建发布(单二进制,UI 内嵌)
 
-## 使用说明
-
-1. **选择模板**: 点击模板缩略图选择票根样式
-2. **上传海报**: 点击"上传海报"按钮选择电影海报图片
-3. **填写信息**: 输入电影标题、影院名称、时间等信息
-4. **生成票根**: 点击"下载票根"按钮
-5. **自动上传**: 系统自动将票根上传至服务端
-6. **本地下载**: 同时下载票根到本地设备
-
-## 项目结构
-
-```
-ticket/
-├── api/           # API接口
-│   └── api.go     # 图片上传处理
-├── initialize/    # 服务初始化
-│   └── router.go  # 路由配置
-├── router/        # 路由定义
-│   └── router.go  # API路由注册
-├── web/           # 前端资源
-│   ├── index.html # 主页面
-│   └── static/    # 静态资源
-├── uploads/       # 图片上传目录（自动创建）
-├── main.go        # 程序入口
-└── go.mod         # Go模块配置
+```bash
+cd web && npm install --ignore-scripts && npm run build   # 产物进 internal/assets/dist
+go build -o ticket ./cmd/server
+./ticket                                          # 依赖 config.yaml 或环境变量
+# 或一键脚本:scripts/build.ps1 / scripts/build.sh
 ```
 
-## API接口
+### Docker
 
-### 图片上传
-- **URL**: `POST /api/upload/image`
-- **参数**: `image` (multipart/form-data)
-- **响应**: JSON格式的上传结果
-
-#### 成功响应示例
-```json
-{
-  "success": true,
-  "message": "图片上传成功",
-  "data": {
-    "filename": "ticket_1703123456789123456.png",
-    "filePath": "./uploads/ticket_1703123456789123456.png",
-    "size": 1024000,
-    "type": "image/png"
-  }
-}
+```bash
+docker build -t ticket .
+docker run --rm -p 8080:8080 \
+  -e RUN_MODE=prod \
+  -e MYSQL_DRIVER=mysql -e MYSQL_PATH=127.0.0.1:3306 -e MYSQL_USERNAME=root \
+  -e MYSQL_PASSWORD=xxx -e MYSQL_DBNAME=ticket \
+  -e STORAGE_TYPE=mos -e STORAGE_ENDPOINT=minio.example.com -e STORAGE_ACCESS_KEY_ID=xxx \
+  -e STORAGE_ACCESS_KEY_SECRET=xxx -e STORAGE_BUCKET=dvr \
+  -e JWT_SECRET=change-me \
+  ticket
 ```
 
-#### 错误响应示例
-```json
-{
-  "success": false,
-  "message": "只支持图片文件上传"
-}
+## ⚙️ 配置
+
+`config.example.yaml` 为模板。加载优先级:**默认值 < config.yaml(可选) < 环境变量**;`RUN_MODE=prod` 时依赖环境变量(生产不落盘密钥)。
+
+| 段 | 环境变量(示例) | 说明 |
+|---|---|---|
+| server | `SERVER_PORT` `SERVER_MODE` | 监听端口 / gin debug·release |
+| mysql | `MYSQL_DRIVER` `MYSQL_PATH` `MYSQL_USERNAME` `MYSQL_PASSWORD` `MYSQL_DBNAME` `MYSQL_CONFIG` | driver=`mysql`(默认)或 `sqlite`(Path=文件) |
+| storage | `STORAGE_TYPE` `STORAGE_ACCESS_KEY_ID` `STORAGE_ACCESS_KEY_SECRET` `STORAGE_ENDPOINT` `STORAGE_BUCKET` | `mos`=MinIO/S3,`cos`=腾讯云 |
+| wechat | `WECHAT_APP_ID` `WECHAT_APP_SECRET` `WECHAT_TOKEN` | 公众号 |
+| jwt | `JWT_SECRET` `JWT_EXPIRE_SECONDS` | HS256 密钥与有效期(秒) |
+| admin | `ADMIN_BOOTSTRAP_NICKNAMES` | 启动时将昵称(逗号分隔,已注册用户)提升为管理员 |
+
+> 数据库迁移:首次启动 `AutoMigrate` 为 `user` 表补充 `role`、`openid` 列,为 `image` 表补充 `object` 列。若线上 MySQL 磁盘不足会导致迁移失败(先清理空间)。
+
+## 🔌 API 摘要
+
+统一响应 `{ "code": 0, "message": "ok", "data": … }`;鉴权头 `Authorization: Bearer <token>`。
+
+- 公开:`POST /api/auth/captcha|register|login|reset-password`、`GET /api/templates`、`GET|POST /api/wechat/message`、`POST /api/wechat/login`
+- 登录:`GET /api/auth/me`、`PUT /api/auth/profile`、`POST /api/uploads`(multipart: file+type)、`GET /api/user/products`、`DELETE /api/user/products/:id`
+- 管理员:`GET|POST /api/admin/templates`、`PUT|DELETE /api/admin/templates/:id`
+
+## 🗄️ 数据模型(单数表名)
+
+- `user`:nickname、password(bcrypt,旧 MD5 兼容)、avatar、openid、role(0 普通/1 管理员)、status、时间戳
+- `image`:userId、type(product/poster/avatar/template)、filename、url、object(存储 key)、ip、createTime
+- `template`:userId(0=系统)、name、url、titleColor、textColor、status(1 上架/2 下架)、createTime
+
+## 🧪 冒烟验证
+
+```powershell
+$env:MYSQL_DRIVER='sqlite'; $env:MYSQL_PATH='./smoke.db'
+go run ./cmd/server   # 另开终端:
+curl http://127.0.0.1:8080/api/auth/captcha -X POST   # code=0
+curl http://127.0.0.1:8080/                           # 首页(构建 UI 后为应用)
+curl http://127.0.0.1:8080/products                   # SPA 回退
+curl http://127.0.0.1:8080/api/nope                    # JSON 404
 ```
 
-## 注意事项
+## 📜 设计
 
-- 确保`uploads/`目录有写入权限
-- 图片文件会自动按时间戳命名，避免文件名冲突
-- 上传失败不会影响本地下载功能
-- 支持的最大文件大小为10MB
+暗色影院 × 金色设计语言、绘制管线坐标与页面交互细节见 `DESIGN.md`。票根画布 700×1400 的模板布局数值沿用既有模板调校结果,移植保持 1:1。
 
-## 开发说明
+## 📄 License
 
-### 添加新的图片格式支持
-在`api/api.go`中修改`allowedExts`数组：
-```go
-allowedExts := []string{".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".tiff"}
-```
-
-### 修改上传目录
-在`api/api.go`中修改`uploadDir`变量：
-```go
-uploadDir := "./custom_uploads"
-```
-
-### 调整文件大小限制
-在`api/api.go`中修改`ParseMultipartForm`参数：
-```go
-c.Request.ParseMultipartForm(20 << 20) // 20MB
-```
-
-## 许可证
-
-MIT License
+MIT

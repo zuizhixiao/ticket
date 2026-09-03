@@ -1,2 +1,10 @@
-statik/
-.idea/
+.git
+.gocache
+output
+web/node_modules
+node_modules
+.pnpm-store
+*.exe
+*.log
+config.yaml
+config.local.yaml

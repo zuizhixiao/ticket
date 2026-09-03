@@ -1,3 +1,15 @@
 config.yaml
-.idea
-statik
+config.local.yaml
+.idea/
+.vscode/
+*.exe
+*.log
+.DS_Store
+.gocache/
+.pnpm-store/
+node_modules/
+web/dist/
+*.db
+internal/assets/dist/assets/
+internal/assets/dist/*
+!internal/assets/dist/index.html

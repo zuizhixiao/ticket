@@ -1,130 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>电影纪念票编辑器</title>
-    <link rel="stylesheet" href="static/css/styles.css">
-</head>
-<body>
-    <div class="container">
-        <main class="editor-container">
-            <!-- 登录栏 -->
-            <div class="login-bar">
-                <a href="/login" class="login-text-link" id="loginLink">登录</a>
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <div class="user-avatar-wrap" id="userAvatarWrap"></div>
-                    <span class="user-name" id="userName"></span>
-                    <div class="user-dropdown">
-                        <a href="/products" class="dropdown-item">成品列表</a>
-                        <a href="#" class="dropdown-item logout-btn">退出</a>
-                    </div>
-                </div>
-            </div>
-            <!-- 左侧预览区域 -->
-            <div class="preview-panel">
-                <h3>👀 票根预览</h3>
-                <div class="ticket-preview">
-                    <canvas id="ticketCanvas" width="700" height="1400"></canvas>
-                </div>
-                <!-- 缩放和旋转功能已移除 -->
-            </div>
-
-            <!-- 右侧控制面板 -->
-            <div class="control-panel">
-                <div class="control-panel-scroll">
-                <section class="template-section">
-                    <h3>🎨 选择背景模板</h3>
-                    <div class="template-grid" id="templateGrid">
-                        <!-- 模板将通过JavaScript动态生成 -->
-                    </div>
-                </section>
-
-                <section class="poster-section">
-                    <h3>🎭 上传电影海报</h3>
-                    <div class="poster-upload">
-                        <button class="btn btn-upload" id="uploadBtn">📷 选择海报</button>
-                        <input type="file" id="posterInput" accept="image/*" hidden>
-                    </div>
-                    <div class="poster-preview" id="posterPreview" style="display: none;">
-                        <img id="posterImage" alt="海报预览">
-                        <button class="remove-poster" id="removePoster">✕</button>
-                    </div>
-                </section>
-
-                <section class="ticket-info-section">
-                    <h3>🎫 编辑票根信息</h3>
-                    <div class="form-group">
-                        <label for="movieTitle">电影标题</label>
-                        <input type="text" id="movieTitle" placeholder="请输入电影标题">
-                    </div>
-                    <div class="form-group-row">
-                        <div class="form-group">
-                            <label for="language">语言</label>
-                            <select id="language" class="form-control">
-                                <option value="国语">国语</option>
-                                <option value="日语">日语</option>
-                                <option value="英语">英语</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="format">格式</label>
-                            <select id="format" class="form-control">
-                                <option value="2D">2D</option>
-                                <option value="3D">3D</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="cinemaName">影院名称</label>
-                            <input type="text" id="cinemaName" placeholder="请输入影院名称">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="hallSeat">影厅号及座位号</label>
-                        <input type="text" id="hallSeat" placeholder="请输入影厅号及座位号">
-                    </div>
-                    <div class="form-group">
-                        <label for="startTime">开始时间</label>
-                        <input type="text" id="startTime" placeholder="请输入开始时间">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="exclusiveName">特殊ID</label>
-                        <input type="text" id="exclusiveName" placeholder="请输入特殊ID">
-                    </div>
-                </section>
-
-                <!-- 新增字体大小自定义控制面板 -->
-                <section class="font-size-section">
-                    <h3>🔤 字体大小设置</h3>
-                    <div class="font-size-controls">
-                        <div class="font-size-item">
-                            <label for="titleFontSize">电影标题字体</label>
-                            <div class="font-size-slider-container">
-                                <input type="range" id="titleFontSize" min="20" max="52" value="48" class="font-size-slider">
-                                <span class="font-size-value" id="titleFontSizeValue">48px</span>
-                            </div>
-                        </div>
-                        <div class="font-size-item">
-                            <label for="textFontSize">正文字体</label>
-                            <div class="font-size-slider-container">
-                                <input type="range" id="textFontSize" min="12" max="38" value="26" class="font-size-slider">
-                                <span class="font-size-value" id="textFontSizeValue">26px</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="action-section">
-                    <button class="btn btn-primary" id="downloadBtn">💾 下载票根</button>
-                    <button class="btn btn-secondary" id="resetBtn">🔄 重置</button>
-                </section>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/script.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0a0f" />
+    <meta name="description" content="在线生成你的电影纪念票根:选择模板、上传海报、定制信息,一键成图。" />
+    <title>电影纪念票根 · Cinema Ticket</title>
+    <style>
+      /* 首屏无白闪 */
+      html { background: #0b0a0f; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

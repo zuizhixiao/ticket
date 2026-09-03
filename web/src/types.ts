@@ -1,0 +1,77 @@
+// 共享领域类型(与后端 JSON 契约一致)
+export interface User {
+  id: number
+  nickname: string
+  avatar: string
+  role: number // 0 普通 1 管理员
+  openid: string
+  createTime?: number
+}
+
+export interface LoginResult {
+  token: string
+  user: User
+}
+
+export interface Template {
+  id: number
+  name: string
+  url: string
+  titleColor: string
+  textColor: string
+  status: number
+  createTime?: number
+}
+
+export interface ProductImage {
+  id: number
+  type: string
+  filename: string
+  url: string
+  ip?: string
+  createTime: number
+}
+
+export interface Paged<T> {
+  list: T[]
+  total: number
+  page: number
+  size: number
+}
+
+export interface UploadResult {
+  id: number
+  url: string
+  filename: string
+  type: string
+  createTime: number
+}
+
+export interface CaptchaResult {
+  captchaId: string
+  captchaImg: string
+}
+
+export interface TicketFields {
+  movieTitle: string
+  language: string
+  format: string
+  cinemaName: string
+  hallSeat: string
+  startTime: string
+  exclusiveName: string
+  titleFontSize: number
+  textFontSize: number
+}
+
+export const DEFAULT_FIELDS: TicketFields = {
+  movieTitle: '',
+  language: '国语',
+  format: '2D',
+  cinemaName: '',
+  hallSeat: '',
+  startTime: '',
+  exclusiveName: '',
+  titleFontSize: 48,
+  textFontSize: 26
+}

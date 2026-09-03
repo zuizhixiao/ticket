@@ -1,0 +1,27 @@
+# 复制为 config.yaml 并填入你的环境;生产建议 RUN_MODE=prod 全部走环境变量
+server:
+  port: 8080
+  mode: debug            # debug | release
+storage:
+  type: mos              # mos(MinIO/S3) | cos(腾讯云)
+  access_key_id: ""
+  access_key_secret: ""
+  endpoint: ""           # 例: minio.example.com 或 cos.ap-shanghai.myqcloud.com
+  bucket: ""
+mysql:
+  path: 127.0.0.1:3306
+  username: root
+  password: ""
+  dbname: ticket
+  config: charset=utf8mb4&parseTime=True&loc=Local
+wechat:
+  app_id: ""
+  app_secret: ""
+  token: ""
+jwt:
+  secret: "change-me"
+  expire_seconds: 86400
+captcha:
+  expire_minutes: 10
+admin:
+  bootstrap_nicknames: ""   # 逗号分隔:启动时将这些昵称设为管理员(幂等)
