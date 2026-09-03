@@ -14,7 +14,7 @@ WORKDIR /src/web
 RUN npm ci --ignore-scripts \
     && npm run build
 
-FROM registry.cn-hangzhou.aliyuncs.com/library/golang:1.24-alpine AS builder
+FROM registry.cn-hangzhou.aliyuncs.com/open_images/go-alpine:1.24.1 AS builder
 WORKDIR /build
 COPY --from=ui /src/go.mod ./go.mod
 COPY --from=ui /src/go.sum ./go.sum
@@ -24,7 +24,7 @@ ENV CGO_ENABLED=0 GOPROXY=https://goproxy.cn,direct
 RUN go mod download \
     && go build -ldflags="-s -w" -o ticket ./cmd/server
 
-FROM registry.cn-hangzhou.aliyuncs.com/library/alpine:3.20
+FROM registry.cn-hangzhou.aliyuncs.com/open_images/alpine
 RUN apk add --no-cache ca-certificates tzdata \
     && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 WORKDIR /app
