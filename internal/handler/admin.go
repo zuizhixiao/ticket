@@ -69,7 +69,7 @@ func AdminImages(c *gin.Context) {
 		return
 	}
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	size, _ := strconv.Atoi(c.DefaultQuery("size", "24"))
+	size, _ := strconv.Atoi(c.DefaultQuery("size", "20"))
 	list, total, err := service.AdminListImages(config.DB, imgType, page, size)
 	if err != nil {
 		response.ServerError(c, "查询失败")

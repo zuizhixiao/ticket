@@ -20,13 +20,13 @@ type Image struct {
 	UserId     int    `gorm:"column:userId;type:int(11);index" json:"userId"`
 	Type       string `gorm:"column:type;type:varchar(20);index" json:"type"`
 	Filename   string `gorm:"column:filename;type:varchar(200)" json:"filename"`
-	Url        string `gorm:"column:url;type:varchar(500)" json:"url"`
-	Object     string `gorm:"column:object;type:varchar(500);default:''" json:"-"` // 存储对象 key(用于删除)
+	Url        string `gorm:"column:url;type:varchar(500)" json:"url"`                  // 原图 URL
+	ThumbUrl   string `gorm:"column:thumbUrl;type:varchar(500);default:''" json:"thumbUrl"` // 压缩图 URL(列表展示)
 	Ip         string `gorm:"column:ip;type:varchar(64)" json:"ip"`
 	CreateTime int64  `gorm:"column:createTime;type:bigint(20)" json:"createTime"`
 }
 
-func (Image) TableName() string { return "image" }
+func (Image) TableName() string { return "ticket_image" }
 
 func (i *Image) BeforeCreate(*gorm.DB) error {
 	if i.CreateTime == 0 {

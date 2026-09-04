@@ -34,7 +34,7 @@ type User struct {
 	UpdateTime    *int64 `gorm:"column:updateTime;type:bigint(20)" json:"updateTime"`
 }
 
-func (User) TableName() string { return "user" }
+func (User) TableName() string { return "ticket_user" }
 
 func (u *User) BeforeCreate(*gorm.DB) error {
 	if u.CreateTime == 0 {

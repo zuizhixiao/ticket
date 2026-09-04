@@ -11,10 +11,12 @@ import (
 type Store interface {
 	// Put 上传并返回公网可访问 URL。
 	Put(ctx context.Context, object string, r io.Reader, size int64, contentType string) (string, error)
-	// Delete 删除对象(对象不存在返回 nil)。
+	// Delete 按对象 key 删除(对象不存在返回 nil)。
 	Delete(ctx context.Context, object string) error
-	// PublicURL 依据 object 拼出公网 URL(可用于入库前预览)。
+	// PublicURL 依据 object 拼出公网 URL。
 	PublicURL(object string) string
+	// DeleteByURL 依据公网 URL 反解对象 key 后删除。
+	DeleteByURL(ctx context.Context, rawURL string) error
 }
 
 // Default 全局存储客户端,由 main 在启动时注入。

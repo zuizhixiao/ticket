@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -39,6 +40,15 @@ func (m *mos) Put(ctx context.Context, object string, r io.Reader, size int64, c
 
 func (m *mos) Delete(ctx context.Context, object string) error {
 	return m.client.RemoveObject(ctx, m.bucket, object, minio.RemoveObjectOptions{})
+}
+
+// DeleteByURL 从公网 URL 反解对象 key 后删除。
+func (m *mos) DeleteByURL(ctx context.Context, rawURL string) error {
+	prefix := fmt.Sprintf("https://%s/%s/", m.endpoint, m.bucket)
+	if !strings.HasPrefix(rawURL, prefix) {
+		return fmt.Errorf("URL 不属于当前存储桶:%s", rawURL)
+	}
+	return m.Delete(ctx, strings.TrimPrefix(rawURL, prefix))
 }
 
 func (m *mos) PublicURL(object string) string {

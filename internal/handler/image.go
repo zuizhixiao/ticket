@@ -61,6 +61,7 @@ func Upload(c *gin.Context) {
 	response.OK(c, gin.H{
 		"id":         img.Id,
 		"url":        img.Url,
+		"thumbUrl":   img.ThumbUrl,
 		"filename":   img.Filename,
 		"type":       img.Type,
 		"createTime": img.CreateTime,

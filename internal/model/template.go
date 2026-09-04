@@ -18,7 +18,7 @@ type Template struct {
 	CreateTime int    `gorm:"column:createTime;type:int(11);not null" json:"createTime"`
 }
 
-func (Template) TableName() string { return "template" }
+func (Template) TableName() string { return "ticket_template" }
 
 func (t *Template) BeforeCreate(*gorm.DB) error {
 	if t.CreateTime == 0 {

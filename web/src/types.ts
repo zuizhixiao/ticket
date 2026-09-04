@@ -39,6 +39,7 @@ export interface AdminImageRow {
   userId: number
   filename: string
   url: string
+  thumbUrl?: string
   ip?: string
   nickname: string
   createTime: number

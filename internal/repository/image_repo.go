@@ -47,11 +47,11 @@ type AdminImageRow struct {
 // AdminPageImagesByType 管理后台:按类型分页查全部图片(左连用户取昵称,游客显示"游客")。
 func AdminPageImagesByType(db *gorm.DB, imgType string, page, size int) ([]AdminImageRow, error) {
 	var rows []AdminImageRow
-	q := db.Table("image").
-		Select("image.*, IFNULL(u.nickname, '游客') AS nickname").
-		Joins("LEFT JOIN user AS u ON u.id = image.userId").
-		Where("image.type = ?", imgType).
-		Order("image.id DESC")
+	q := db.Table("ticket_image").
+		Select("ticket_image.*, IFNULL(u.nickname, '游客') AS nickname").
+		Joins("LEFT JOIN ticket_user AS u ON u.id = ticket_image.userId").
+		Where("ticket_image.type = ?", imgType).
+		Order("ticket_image.id DESC")
 	if page > 0 && size > 0 {
 		q = q.Limit(size).Offset((page - 1) * size)
 	}
@@ -75,4 +75,32 @@ func GetImageByID(db *gorm.DB, id int) (*model.Image, error) {
 
 func DeleteImageByID(db *gorm.DB, id int) error {
 	return db.Delete(&model.Image{}, id).Error
+}
+
+// PendingThumbImages 补压用:类型为 product/poster 且无压缩图的记录(id 升序分批)。
+func PendingThumbImages(db *gorm.DB, afterID, limit int) ([]model.Image, error) {
+	var list []model.Image
+	err := db.Model(&model.Image{}).
+		Where("type IN ? AND (thumbUrl IS NULL OR thumbUrl = '') AND id > ?",
+			[]string{model.ImageTypeProduct, model.ImageTypePoster}, afterID).
+		Order("id ASC").
+		Limit(limit).
+		Find(&list).Error
+	return list, err
+}
+
+func CountPendingThumbs(db *gorm.DB) (int64, error) {
+	var n int64
+	err := db.Model(&model.Image{}).
+		Where("type IN ? AND (thumbUrl IS NULL OR thumbUrl = '')",
+			[]string{model.ImageTypeProduct, model.ImageTypePoster}).
+		Count(&n).Error
+	return n, err
+}
+
+func UpdateImageFields(db *gorm.DB, id int, fields map[string]any) error {
+	if len(fields) == 0 {
+		return nil
+	}
+	return db.Model(&model.Image{}).Where("id = ?", id).Updates(fields).Error
 }

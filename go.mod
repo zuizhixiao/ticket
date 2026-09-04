@@ -11,6 +11,7 @@ require (
 	github.com/spf13/viper v1.20.1
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.69
 	golang.org/x/crypto v0.46.0
+	golang.org/x/image v0.23.0
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.1
 )
@@ -68,7 +69,6 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/image v0.23.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.32.0 // indirect

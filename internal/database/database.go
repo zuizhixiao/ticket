@@ -12,14 +12,14 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-// Init 建立连接并迁移表结构。
+// Init 建立连接并迁移表结构(表名统一 ticket_ 前缀)。
 func Init(m config.Mysql) (*gorm.DB, error) {
 	var (
 		db  *gorm.DB
 		err error
 	)
 	opts := &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{SingularTable: true},
+		NamingStrategy: schema.NamingStrategy{TablePrefix: "ticket_", SingularTable: true},
 		Logger:         logger.Default.LogMode(logger.Warn),
 	}
 	if m.Driver == "sqlite" {
@@ -51,7 +51,7 @@ func Init(m config.Mysql) (*gorm.DB, error) {
 }
 
 const sqliteDDL = `
-CREATE TABLE IF NOT EXISTS "user" (
+CREATE TABLE IF NOT EXISTS "ticket_user" (
   "id" integer PRIMARY KEY AUTOINCREMENT,
   "nickname" varchar(255) NOT NULL,
   "password" varchar(100) NOT NULL,
@@ -63,17 +63,17 @@ CREATE TABLE IF NOT EXISTS "user" (
   "createTime" bigint NOT NULL,
   "updateTime" bigint
 );
-CREATE TABLE IF NOT EXISTS "image" (
+CREATE TABLE IF NOT EXISTS "ticket_image" (
   "id" integer PRIMARY KEY AUTOINCREMENT,
   "userId" integer,
   "type" varchar(20),
   "filename" varchar(200),
   "url" varchar(500),
-  "object" varchar(500) DEFAULT '',
+  "thumbUrl" varchar(500) DEFAULT '',
   "ip" varchar(64),
   "createTime" bigint
 );
-CREATE TABLE IF NOT EXISTS "template" (
+CREATE TABLE IF NOT EXISTS "ticket_template" (
   "id" integer PRIMARY KEY AUTOINCREMENT,
   "userId" integer NOT NULL DEFAULT 0,
   "name" varchar(100) DEFAULT '',

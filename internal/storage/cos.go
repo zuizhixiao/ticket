@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/tencentyun/cos-go-sdk-v5"
 )
@@ -44,6 +45,15 @@ func (c *cosStore) Put(ctx context.Context, object string, r io.Reader, size int
 func (c *cosStore) Delete(ctx context.Context, object string) error {
 	_, err := c.client.Object.Delete(ctx, object)
 	return err
+}
+
+// DeleteByURL 从公网 URL 反解对象 key 后删除。
+func (c *cosStore) DeleteByURL(ctx context.Context, rawURL string) error {
+	prefix := fmt.Sprintf("https://%s.%s/", c.bucket, c.endpoint)
+	if !strings.HasPrefix(rawURL, prefix) {
+		return fmt.Errorf("URL 不属于当前存储桶:%s", rawURL)
+	}
+	return c.Delete(ctx, strings.TrimPrefix(rawURL, prefix))
 }
 
 func (c *cosStore) PublicURL(object string) string {

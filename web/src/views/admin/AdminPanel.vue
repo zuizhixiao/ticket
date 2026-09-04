@@ -10,7 +10,7 @@ import type { AdminImageRow } from '@/types'
 import { timeFmt } from '@/utils/format'
 
 const route = useRoute()
-const SIZE = 24
+const SIZE = 20
 
 type ListKind = 'product' | 'poster'
 
@@ -152,7 +152,7 @@ onMounted(() => {
             class="admin-img-card"
             @click="openLightbox(item)"
           >
-            <img :src="item.url" :alt="item.filename" loading="lazy" />
+            <img :src="item.thumbUrl || item.url" :alt="item.filename" loading="lazy" />
             <button
               class="admin-rm"
               title="删除"
@@ -164,10 +164,14 @@ onMounted(() => {
           </div>
         </div>
 
+        <!-- 手动加载更多 -->
         <div v-if="panel.hasMore" class="row" style="justify-content: center; margin-top: 14px">
           <button class="btn btn-ghost btn-sm" :disabled="panel.loading" @click="panel.onLoadMore">
             {{ panel.loading ? '加载中…' : '加载更多' }}
           </button>
+        </div>
+        <div v-else-if="panel.rows.length" class="row" style="justify-content: center; margin-top: 10px">
+          <span class="small muted">已全部加载</span>
         </div>
       </section>
     </main>
