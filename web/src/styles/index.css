@@ -1265,6 +1265,173 @@ img {
   border: 1px solid var(--border-strong);
 }
 
+/* 模板弹窗预览:背景图上的示例文字(用于调字体颜色) */
+.tpl-preview {
+  position: relative;
+  background: #000;
+}
+
+.tpl-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tpl-preview .pv-title {
+  position: absolute;
+  left: 6%;
+  top: 70%;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.tpl-preview .pv-line {
+  position: absolute;
+  left: 6%;
+  font-size: 11px;
+  line-height: 1.5;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+
+/* 模板列表卡片:完整图片 + 图标按钮 */
+.tpl-admin-card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  cursor: grab;
+}
+
+.tpl-admin-card:active {
+  cursor: grabbing;
+}
+
+.tpl-admin-card.dragging {
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.tpl-admin-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.tpl-card-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 2; /* 票根 700x1400 */
+  overflow: hidden;
+  background: #000;
+}
+
+.tpl-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 完整展示,不裁切 */
+}
+
+.tpl-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.tpl-dot.on {
+  background: var(--ok);
+}
+
+.tpl-dot.off {
+  background: var(--danger);
+}
+
+.tpl-card-actions {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.tpl-icon {
+  flex: 1;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(12, 11, 16, 0.62);
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+  transition: background 0.18s ease, transform 0.15s ease;
+}
+
+.tpl-icon:hover {
+  background: var(--gold);
+  color: #1c1503;
+}
+
+.tpl-icon.danger:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.tpl-icon:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 图标按钮悬停提示 */
+.tpl-icon,
+.admin-rm {
+  position: relative;
+}
+
+.tpl-icon[data-tip]:hover::after,
+.admin-rm[data-tip]:hover::after {
+  opacity: 1;
+}
+
+.tpl-icon[data-tip]::after,
+.admin-rm[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(22, 20, 30, 0.96);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 30;
+}
+
+/* 模板底部按钮:提示向上(仍在卡片内) */
+.tpl-icon[data-tip]::after {
+  bottom: calc(100% + 8px);
+}
+
+/* 右上角删除:提示向下,避免被卡片顶部裁掉 */
+.admin-rm[data-tip]::after {
+  top: calc(100% + 8px);
+}
+
 @media (max-width: 760px) {
   html,
   body {

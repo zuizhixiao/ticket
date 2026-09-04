@@ -63,6 +63,7 @@ func registerAPI(r *gin.Engine, cfg *config.Config) {
 	{
 		admin.GET("/admin/templates", handler.AdminTemplates)
 		admin.POST("/admin/templates", handler.AdminCreateTemplate)
+		admin.PUT("/admin/templates/sort", handler.AdminTemplatesSort)
 		admin.PUT("/admin/templates/:id", handler.AdminUpdateTemplate)
 		admin.DELETE("/admin/templates/:id", handler.AdminDeleteTemplate)
 		admin.GET("/admin/images", handler.AdminImages)

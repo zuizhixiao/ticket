@@ -155,7 +155,7 @@ onMounted(() => {
             <img :src="item.thumbUrl || item.url" :alt="item.filename" loading="lazy" />
             <button
               class="admin-rm"
-              title="删除"
+              data-tip="删除"
               :disabled="deletingId === item.id"
               @click.stop="removeItem(item)"
             >

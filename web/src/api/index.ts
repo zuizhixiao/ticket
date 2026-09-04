@@ -55,6 +55,7 @@ export const adminApi = {
   update: (id: number, payload: Partial<Template>) =>
     http.put<Template>(`/admin/templates/${id}`, payload),
   remove: (id: number) => http.del(`/admin/templates/${id}`),
+  reorderSort: (ids: number[]) => http.put(`/admin/templates/sort`, { ids }),
   images: (type: 'product' | 'poster', page = 1, size = 24) =>
     http.get<Paged<AdminImageRow>>(`/admin/images?type=${type}&page=${page}&size=${size}`),
   removeImage: (id: number) => http.del(`/admin/images/${id}`),

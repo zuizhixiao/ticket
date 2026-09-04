@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"regexp"
 	"strings"
@@ -9,6 +10,7 @@ import (
 
 	"ticket/internal/model"
 	"ticket/internal/repository"
+	"ticket/internal/storage"
 )
 
 // 模板相关领域错误
@@ -44,10 +46,14 @@ func PublicTemplates(db *gorm.DB) ([]model.Template, error) {
 	return repository.ListPublicTemplates(db)
 }
 
-// AdminCreateTemplate 新增系统模板。
+// AdminCreateTemplate 新增系统模板(默认置顶展示)。
 func AdminCreateTemplate(db *gorm.DB, in TemplateInput) (*model.Template, error) {
 	if strings.TrimSpace(in.Url) == "" {
 		return nil, ErrTemplateURLRequired
+	}
+	minSort, err := repository.MinTemplateSort(db)
+	if err != nil {
+		return nil, err
 	}
 	t := &model.Template{
 		UserId:     0, // 系统
@@ -56,11 +62,22 @@ func AdminCreateTemplate(db *gorm.DB, in TemplateInput) (*model.Template, error)
 		TitleColor: sanitizeColor(in.TitleColor, "#ffffff"),
 		TextColor:  sanitizeColor(in.TextColor, "#ffffff"),
 		Status:     model.StatusNormal,
+		Sort:       minSort - 1,
 	}
 	if err := repository.CreateTemplate(db, t); err != nil {
 		return nil, err
 	}
 	return t, nil
+}
+
+// AdminReorderTemplates 按给定 id 顺序批量写入 sort(0..n)。
+func AdminReorderTemplates(db *gorm.DB, ids []int) error {
+	for i, id := range ids {
+		if err := repository.UpdateTemplateFields(db, id, map[string]any{"sort": i}); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // AdminUpdateTemplate 更新模板字段(空值不更新;status 可选 1/2)。
@@ -97,13 +114,17 @@ func AdminUpdateTemplate(db *gorm.DB, id int, in TemplateInput) (*model.Template
 	return repository.GetTemplateByID(db, id)
 }
 
-// AdminDeleteTemplate 软删模板。
+// AdminDeleteTemplate 硬删除模板记录(尽力删除其图片对象,失败不影响删除)。
 func AdminDeleteTemplate(db *gorm.DB, id int) error {
-	if _, err := repository.GetTemplateByID(db, id); err != nil {
+	t, err := repository.GetTemplateByID(db, id)
+	if err != nil {
 		if repository.IsNotFound(err) {
 			return ErrTemplateNotFound
 		}
 		return err
 	}
-	return repository.UpdateTemplateFields(db, id, map[string]any{"status": model.StatusDelete})
+	if storage.Default != nil && t.Url != "" {
+		_ = storage.Default.DeleteByURL(context.Background(), t.Url)
+	}
+	return repository.DeleteTemplate(db, id)
 }

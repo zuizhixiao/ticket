@@ -61,6 +61,26 @@ func AdminUpdateTemplate(c *gin.Context) {
 	response.OKMessage(c, "已保存", t)
 }
 
+// AdminTemplatesSort 拖拽排序:ids 为列表当前顺序,写回 sort。
+func AdminTemplatesSort(c *gin.Context) {
+	var req struct {
+		Ids []int `json:"ids"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ParamError(c, "参数格式错误")
+		return
+	}
+	if len(req.Ids) == 0 {
+		response.ParamError(c, "ids 不能为空")
+		return
+	}
+	if err := service.AdminReorderTemplates(config.DB, req.Ids); err != nil {
+		response.ServerError(c, "排序保存失败")
+		return
+	}
+	response.OKMessage(c, "排序已保存", nil)
+}
+
 // AdminImages 查看全部成品/海报(type=product|poster,分页)。
 func AdminImages(c *gin.Context) {
 	imgType := c.Query("type")
@@ -171,5 +191,5 @@ func AdminDeleteTemplate(c *gin.Context) {
 		response.ServerError(c, "删除失败")
 		return
 	}
-	response.OKMessage(c, "已下架", nil)
+	response.OKMessage(c, "已删除", nil)
 }

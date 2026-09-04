@@ -3,14 +3,14 @@ import { onMounted, reactive, ref } from 'vue'
 
 import AppHeader from '@/components/layout/AppHeader.vue'
 import Modal from '@/components/ui/Modal.vue'
-import { adminApi, uploadApi } from '@/api'
+import { adminApi } from '@/api'
 import { toast } from '@/composables/toast'
 import type { Template } from '@/types'
-import { timeFmt } from '@/utils/format'
 
 const rows = ref<Template[]>([])
 const loading = ref(false)
 const filter = ref<'0' | '1' | '2'>('0')
+const busyId = ref(0)
 
 async function load() {
   loading.value = true
@@ -29,6 +29,7 @@ onMounted(load)
 // ---------- 新增 / 编辑 ----------
 const showEdit = ref(false)
 const saving = ref(false)
+const previewFailed = ref(false)
 const draft = reactive<{ id: number | null; name: string; url: string; titleColor: string; textColor: string }>({
   id: null,
   name: '',
@@ -36,14 +37,10 @@ const draft = reactive<{ id: number | null; name: string; url: string; titleColo
   titleColor: '#ffffff',
   textColor: '#f9d9c2'
 })
-const fileInput = ref<HTMLInputElement | null>(null)
-const localFile = ref<File | null>(null)
-const localPreview = ref('')
 
 function openCreate() {
   Object.assign(draft, { id: null, name: '', url: '', titleColor: '#ffffff', textColor: '#f9d9c2' })
-  localFile.value = null
-  localPreview.value = ''
+  previewFailed.value = false
   showEdit.value = true
 }
 
@@ -55,40 +52,22 @@ function openEdit(t: Template) {
     titleColor: t.titleColor || '#ffffff',
     textColor: t.textColor || '#f9d9c2'
   })
-  localFile.value = null
-  localPreview.value = ''
+  previewFailed.value = false
   showEdit.value = true
 }
 
-function pickImage(e: Event) {
-  const input = e.target as HTMLInputElement
-  const file = input.files?.[0]
-  input.value = ''
-  if (!file || !file.type.startsWith('image/')) {
-    toast('请选择图片文件', 'error')
+async function saveDraft() {
+  const url = draft.url.trim()
+  if (!url) {
+    toast('请填写图片地址', 'error')
     return
   }
-  localFile.value = file
-  localPreview.value = URL.createObjectURL(file)
-  draft.url = ''
-}
-
-async function saveDraft() {
   if (draft.name.trim() && draft.name.trim().length > 24) {
     toast('模板名称请勿超过 24 字', 'error')
     return
   }
-  if (!draft.url.trim() && !localFile.value) {
-    toast('请上传模板背景图', 'error')
-    return
-  }
   saving.value = true
   try {
-    let url = draft.url.trim()
-    if (localFile.value) {
-      const res = await uploadApi.upload(localFile.value, localFile.value.name, 'template')
-      url = res.url
-    }
     const payload = { name: draft.name.trim(), url, titleColor: draft.titleColor, textColor: draft.textColor }
     if (draft.id == null) {
       await adminApi.create(payload)
@@ -108,12 +87,60 @@ async function saveDraft() {
 
 async function toggleStatus(t: Template) {
   const next = t.status === 1 ? 2 : 1
+  busyId.value = t.id
   try {
     await adminApi.update(t.id, { status: next })
     toast(next === 1 ? '已上架' : '已下架', 'success')
     await load()
   } catch (e) {
     toast(e instanceof Error ? e.message : '操作失败', 'error')
+  } finally {
+    busyId.value = 0
+  }
+}
+
+async function removeItem(t: Template) {
+  if (!window.confirm(`确定删除模板「${t.name || `#${t.id}`}」吗?删除后不可恢复。`)) return
+  busyId.value = t.id
+  try {
+    await adminApi.remove(t.id)
+    toast('已删除', 'success')
+    await load()
+  } catch (e) {
+    toast(e instanceof Error ? e.message : '删除失败', 'error')
+  } finally {
+    busyId.value = 0
+  }
+}
+
+// ---------- 拖拽排序 ----------
+const dragId = ref<number | null>(null)
+
+function onDragStart(t: Template) {
+  dragId.value = t.id
+}
+
+function onDropAt(target: Template) {
+  const from = dragId.value
+  dragId.value = null
+  if (from == null || from === target.id) return
+  const arr = [...rows.value]
+  const fi = arr.findIndex((x) => x.id === from)
+  const ti = arr.findIndex((x) => x.id === target.id)
+  if (fi < 0 || ti < 0) return
+  const [moved] = arr.splice(fi, 1)
+  arr.splice(ti, 0, moved)
+  rows.value = arr
+  persistOrder(arr)
+}
+
+async function persistOrder(arr: Template[]) {
+  try {
+    await adminApi.reorderSort(arr.map((x) => x.id))
+    toast('排序已保存', 'success')
+  } catch (e) {
+    toast(e instanceof Error ? e.message : '排序保存失败', 'error')
+    await load()
   }
 }
 </script>
@@ -147,48 +174,64 @@ async function toggleStatus(t: Template) {
       </div>
 
       <div v-else class="gallery admin-grid">
-        <div v-for="t in rows" :key="t.id" class="prod-card" style="cursor: default">
-          <div class="prod-img">
+        <div
+          v-for="t in rows"
+          :key="t.id"
+          class="tpl-admin-card"
+          :class="{ dragging: dragId === t.id }"
+          draggable="true"
+          @dragstart="onDragStart(t)"
+          @dragover.prevent
+          @drop="onDropAt(t)"
+          @dragend="dragId = null"
+          :title="t.name ? `${t.name} — 拖动排序` : '拖动排序'"
+        >
+          <!-- 完整展示的背景图 -->
+          <div class="tpl-card-thumb">
             <img :src="t.url" :alt="t.name || `模板${t.id}`" loading="lazy" />
+            <span class="tpl-dot" :class="t.status === 1 ? 'on' : 'off'" :title="t.status === 1 ? '上架中' : '已下架'"></span>
           </div>
-          <div class="prod-meta">
-            <span class="prod-name" :title="t.name">{{ t.name || `模板 #${t.id}` }}</span>
-            <span class="badge" :class="t.status === 1 ? 'ok' : 'off'">{{ t.status === 1 ? '上架' : '下架' }}</span>
-          </div>
-          <div style="padding: 0 12px 8px" class="row wrap">
-            <span class="badge" style="border-color: transparent; background: rgba(255,255,255,0.04)">
-              字 <i :style="{ color: t.titleColor }">■</i> {{ t.titleColor }}
-            </span>
-            <span class="badge" style="border-color: transparent; background: rgba(255,255,255,0.04)">
-              文 <i :style="{ color: t.textColor }">■</i> {{ t.textColor }}
-            </span>
-          </div>
-          <div style="padding: 0 10px 10px" class="small muted">{{ timeFmt(t.createTime, false) }} 创建</div>
-          <div class="prod-actions">
-            <button class="btn btn-ghost btn-sm grow" @click="openEdit(t)">编辑</button>
-            <button class="btn btn-sm" :class="t.status === 1 ? 'btn-danger' : 'btn-primary'" @click="toggleStatus(t)">
-              {{ t.status === 1 ? '下架' : '上架' }}
+
+          <!-- 图标操作(无文字) -->
+          <div class="tpl-card-actions" draggable="false">
+            <button class="tpl-icon" data-tip="编辑" @click="openEdit(t)">✎</button>
+            <button
+              class="tpl-icon"
+              :data-tip="t.status === 1 ? '下架' : '上架'"
+              :disabled="busyId === t.id"
+              @click="toggleStatus(t)"
+            >
+              {{ t.status === 1 ? '▼' : '▲' }}
+            </button>
+            <button class="tpl-icon danger" data-tip="删除" :disabled="busyId === t.id" @click="removeItem(t)">
+              🗑
             </button>
           </div>
         </div>
       </div>
     </main>
 
-    <!-- 新增/编辑弹窗 -->
+    <!-- 新增/编辑弹窗(填写图片地址) -->
     <Modal :show="showEdit" :title="draft.id == null ? '新增模板' : '编辑模板'" @close="showEdit = false">
       <div class="row-between wrap mb-2 form-cols" style="align-items: flex-start">
-        <div class="form-preview">
-          <img v-if="localPreview || draft.url" :src="localPreview || draft.url" alt="模板预览" style="width: 100%; height: 100%; object-fit: cover" />
-          <div v-else style="height:100%;display:grid;place-items:center;color:var(--text-muted)">未选择图片</div>
+        <!-- 带示例文字的实时预览(调色方便) -->
+        <div class="form-preview tpl-preview" style="width: 180px; height: 360px; flex-shrink: 0">
+          <template v-if="draft.url && !previewFailed">
+            <img :src="draft.url" alt="预览" @error="previewFailed = true" />
+            <div class="pv-title" :style="{ color: draft.titleColor }">电影标题</div>
+            <div class="pv-line" style="top: 76%" :style="{ color: draft.textColor }">国语 2D | 星光影城</div>
+            <div class="pv-line" style="top: 80.5%" :style="{ color: draft.textColor }">3号厅 7排12座</div>
+            <div class="pv-line" style="top: 85%" :style="{ color: draft.textColor }">2026-02-14 19:30</div>
+          </template>
+          <div v-else style="height: 100%; display: grid; place-items: center; color: var(--text-muted); font-size: 12px; text-align: center; padding: 8px">
+            填写图片地址后<br />显示预览与文字
+          </div>
         </div>
+
         <div class="grow" style="min-width: 250px">
           <div class="field mb-2">
-            <label class="field-label">背景图(建议 700×1400)</label>
-            <input ref="fileInput" type="file" accept="image/*" hidden @change="pickImage" />
-            <button class="btn btn-ghost btn-sm" @click="fileInput?.click()">
-              {{ localFile ? '已选择:重新上传' : '上传图片' }}
-            </button>
-            <p v-if="localFile" class="small muted">{{ localFile.name }}</p>
+            <label class="field-label">图片地址(必填)</label>
+            <input v-model="draft.url" class="input" placeholder="https://…/template.png" @input="previewFailed = false" />
           </div>
           <div class="field mb-2">
             <label class="field-label">模板名称(可空)</label>
@@ -198,14 +241,14 @@ async function toggleStatus(t: Template) {
             <div class="field">
               <label class="field-label">标题文字颜色</label>
               <div class="row">
-                <input v-model="draft.titleColor" type="color" style="width: 44px; height: 40px; border: none; border-radius: 8px; background: transparent; cursor: pointer" />
+                <input v-model="draft.titleColor" type="color" style="width: 40px; height: 36px; border: none; border-radius: 8px; background: transparent; cursor: pointer" />
                 <input v-model="draft.titleColor" class="input" maxlength="7" />
               </div>
             </div>
             <div class="field">
               <label class="field-label">正文文字颜色</label>
               <div class="row">
-                <input v-model="draft.textColor" type="color" style="width: 44px; height: 40px; border: none; border-radius: 8px; background: transparent; cursor: pointer" />
+                <input v-model="draft.textColor" type="color" style="width: 40px; height: 36px; border: none; border-radius: 8px; background: transparent; cursor: pointer" />
                 <input v-model="draft.textColor" class="input" maxlength="7" />
               </div>
             </div>
